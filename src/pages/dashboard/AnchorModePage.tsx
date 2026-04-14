@@ -206,6 +206,7 @@ export default function AnchorModePage() {
             selectedId={selectedId}
             onSelect={setSelectedId}
             onAdd={addObject}
+            width={leftWidth}
           />
         </div>
 
