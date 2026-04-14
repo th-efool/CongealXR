@@ -80,34 +80,41 @@ export default function AnchorModePage() {
   const [published, setPublished] = useState(false);
 
   // Panel resize + toggle state
-  const [leftWidth, setLeftWidth] = useState(280);
-  const [rightWidth, setRightWidth] = useState(320);
+  const leftRef = useRef<HTMLDivElement>(null);
   const [leftOpen, setLeftOpen] = useState(true);
+  const [rightWidth, setRightWidth] = useState(320);
   const [rightOpen, setRightOpen] = useState(true);
 
-  function startLeftResize() {
-    function onMove(e: MouseEvent) {
-      const newWidth = e.clientX;
-      if (newWidth < 120) { setLeftOpen(false); return; }
-      setLeftWidth(Math.min(Math.max(newWidth, 120), 500));
+  const startLeftResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    function onMove(ev: MouseEvent) {
+      if (!leftRef.current) return;
+      let newWidth = ev.clientX;
+      if (newWidth < 180) newWidth = 180;
+      if (newWidth > 420) newWidth = 420;
+      leftRef.current.style.width = newWidth + "px";
     }
+
     function onUp() {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     }
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
+
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
-  }
+  }, []);
 
   function startRightResize() {
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
     function onMove(e: MouseEvent) {
       const newWidth = window.innerWidth - e.clientX;
-      if (newWidth < 200) { setRightOpen(false); return; }
-      setRightWidth(Math.min(newWidth, 500));
+      setRightWidth(Math.min(Math.max(newWidth, 200), 500));
     }
     function onUp() {
       window.removeEventListener("mousemove", onMove);
@@ -115,14 +122,11 @@ export default function AnchorModePage() {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     }
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
   }
 
   function toggleLeft() {
-    if (!leftOpen) setLeftWidth(280);
     setLeftOpen(prev => !prev);
   }
 
