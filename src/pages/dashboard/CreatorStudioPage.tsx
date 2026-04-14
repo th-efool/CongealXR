@@ -112,6 +112,7 @@ export default function CreatorStudioPage() {
     }
 
     function onUp() {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       draggingRef.current = null;
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
