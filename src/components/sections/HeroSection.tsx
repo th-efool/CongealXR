@@ -3,6 +3,14 @@ import { Icon } from '@iconify/react';
 import Reveal from '../ui/Reveal';
 
 export default function HeroSection() {
+  const scrollToSection = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative flex flex-col items-center justify-center pt-28 pb-8 px-6 lg:px-12 z-10 overflow-hidden">
       <div className="max-w-4xl mx-auto text-center flex flex-col items-center relative z-20">
@@ -27,15 +35,15 @@ export default function HeroSection() {
         </Reveal>
 
         <Reveal delay={0.3} className="flex flex-col sm:flex-row items-center gap-4">
-          <Link to="#" className="btn-primary rounded-full px-8 py-3 text-sm font-normal text-white flex items-center gap-2 w-full sm:w-auto justify-center">
+          <Link to="/app/studio" className="btn-primary rounded-full px-8 py-3 text-sm font-normal text-white flex items-center gap-2 w-full sm:w-auto justify-center">
             Start Creating <Icon icon="solar:arrow-right-linear" className="text-lg" />
           </Link>
           <div className="flex items-center gap-4 mt-2 sm:mt-0">
-            <Link to="#" className="text-xs font-medium text-white/50 hover:text-white transition-colors flex items-center gap-1 group">
+            <a href="#builder" onClick={(e) => scrollToSection(e, 'builder')} className="text-xs font-medium text-white/50 hover:text-white transition-colors flex items-center gap-1 group cursor-pointer">
               Watch how it works <Icon icon="solar:arrow-right-linear" className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </a>
             <span className="text-white/20 hidden sm:block">|</span>
-            <Link to="#" className="hidden sm:flex text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors items-center gap-1.5">
+            <Link to="/app/explore" className="hidden sm:flex text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors items-center gap-1.5">
               <Icon icon="solar:play-circle-linear" className="text-sm" /> Try a demo
             </Link>
           </div>
@@ -93,15 +101,15 @@ export default function HeroSection() {
       </Reveal>
 
       <Reveal delay={0.6} className="w-full max-w-4xl mx-auto mt-6 flex flex-wrap justify-center gap-3">
-        <div className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-violet-500/40 transition-all flex items-center gap-2 group shadow-sm">
+        <Link to="/app/studio" className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-violet-500/40 transition-all flex items-center gap-2 group shadow-sm">
           <span className="text-violet-400 group-hover:animate-pulse">Tap</span> <Icon icon="solar:arrow-right-linear" className="text-white/20" /> Spawn Object
-        </div>
-        <div className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-blue-500/40 transition-all flex items-center gap-2 group shadow-sm">
+        </Link>
+        <Link to="/app/studio" className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-blue-500/40 transition-all flex items-center gap-2 group shadow-sm">
           <span className="text-blue-400 group-hover:animate-pulse">Timer</span> <Icon icon="solar:arrow-right-linear" className="text-white/20" /> Spawn Enemies
-        </div>
-        <div className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-emerald-500/40 transition-all flex items-center gap-2 group shadow-sm">
+        </Link>
+        <Link to="/app/studio" className="glass-card px-4 py-2 rounded-lg border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer hover:border-emerald-500/40 transition-all flex items-center gap-2 group shadow-sm">
           <span className="text-emerald-400 group-hover:animate-pulse">Collision</span> <Icon icon="solar:arrow-right-linear" className="text-white/20" /> Score +10
-        </div>
+        </Link>
       </Reveal>
     </section>
   );

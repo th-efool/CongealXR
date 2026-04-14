@@ -14,7 +14,7 @@ export default function CtaSection() {
           No setup. No syntax. Pure creation.
         </p>
         <div className="flex flex-col items-center justify-center">
-          <Link to="#" className="btn-primary rounded-full px-8 py-3 text-sm font-normal text-white inline-flex items-center justify-center w-full sm:w-auto shadow-lg mb-4">
+          <Link to="/app/studio" className="btn-primary rounded-full px-8 py-3 text-sm font-normal text-white inline-flex items-center justify-center w-full sm:w-auto shadow-lg mb-4">
             Launch Aura Studio
           </Link>
           <div className="text-xs text-white/40 tracking-wide font-light">
