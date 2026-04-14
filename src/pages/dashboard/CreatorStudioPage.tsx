@@ -82,19 +82,22 @@ export default function CreatorStudioPage() {
   // -- Node dragging on canvas --
   const handleNodeMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
     e.stopPropagation();
+    e.preventDefault();
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
     const node = nodes.find(n => n.id === nodeId);
     if (!node) return;
-    draggingRef.current = { id: nodeId, offsetX: e.clientX - node.x, offsetY: e.clientY - node.y };
+    const offsetX = e.clientX - rect.left - node.x;
+    const offsetY = e.clientY - rect.top - node.y;
+    draggingRef.current = { id: nodeId, offsetX, offsetY };
     document.body.style.cursor = "grabbing";
     document.body.style.userSelect = "none";
 
-    const rect = canvasRef.current?.getBoundingClientRect();
-
     function onMove(ev: MouseEvent) {
       if (!draggingRef.current || !rect) return;
-      const newX = ev.clientX - rect.left - (draggingRef.current.offsetX - (rect?.left ?? 0));
-      const newY = ev.clientY - rect.top - (draggingRef.current.offsetY - (rect?.top ?? 0));
-      setNodes(prev => prev.map(n => n.id === draggingRef.current!.id ? { ...n, x: Math.max(0, ev.clientX - rect.left - 60), y: Math.max(0, ev.clientY - rect.top - 20) } : n));
+      const newX = Math.max(0, ev.clientX - rect.left - draggingRef.current.offsetX);
+      const newY = Math.max(0, ev.clientY - rect.top - draggingRef.current.offsetY);
+      setNodes(prev => prev.map(n => n.id === draggingRef.current!.id ? { ...n, x: newX, y: newY } : n));
     }
 
     function onUp() {
