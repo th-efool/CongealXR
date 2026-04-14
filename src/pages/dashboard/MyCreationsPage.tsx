@@ -86,7 +86,7 @@ export default function MyCreationsPage() {
                     <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
                   </button>
                   {menuOpen === item.id && (
-                    <div className="absolute right-0 top-6 z-10 glass-panel rounded-lg py-1 min-w-[120px] animate-fade-in shadow-xl">
+                    <div className="absolute right-0 top-6 z-10 bg-card border border-border rounded-lg py-1 min-w-[120px] animate-fade-in shadow-xl">
                       <button onClick={(e) => { e.stopPropagation(); handleEdit(item.id); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2"><Edit className="h-3 w-3" /> Edit</button>
                       <button onClick={(e) => { e.stopPropagation(); togglePublish(item.id); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2">
                         {item.status === "Published" ? <><EyeOff className="h-3 w-3" /> Unpublish</> : <><Upload className="h-3 w-3" /> Publish</>}
@@ -111,26 +111,26 @@ export default function MyCreationsPage() {
       </div>
 
       {editingProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEditingProject(null)}>
-          <div className="glass-card p-6 rounded-xl w-80 space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setEditingProject(null)}>
+          <div className="bg-card border border-border rounded-2xl p-6 w-80 space-y-4 shadow-2xl shadow-primary/10" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-sm font-bold">Edit Project</h2>
             <input
-              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border"
+              className="w-full bg-secondary/50 p-2.5 rounded-lg text-xs border border-border outline-none focus:ring-1 focus:ring-primary"
               value={editingProject.title}
               onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
             />
             <select
-              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border"
+              className="w-full bg-secondary/50 p-2.5 rounded-lg text-xs border border-border outline-none focus:ring-1 focus:ring-primary"
               value={editingProject.type}
               onChange={(e) => setEditingProject({ ...editingProject, type: e.target.value as "Game" | "AR Lesson" })}
             >
               <option value="Game">Game</option>
               <option value="AR Lesson">AR Lesson</option>
             </select>
-            <div className="flex gap-2 justify-end">
-              <button className="text-xs px-3 py-1 rounded bg-secondary/50 hover:bg-secondary/70 transition-colors" onClick={() => setEditingProject(null)}>Cancel</button>
+            <div className="flex gap-2 justify-end pt-2">
+              <button className="text-xs px-4 py-2 rounded-lg bg-secondary/50 hover:bg-secondary/70 transition-colors" onClick={() => setEditingProject(null)}>Cancel</button>
               <button
-                className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                 onClick={() => {
                   setProjects(prev => prev.map(p => p.id === editingProject.id ? editingProject : p));
                   setEditingProject(null);
