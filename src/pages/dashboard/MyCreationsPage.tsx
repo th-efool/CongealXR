@@ -12,7 +12,7 @@ interface Creation {
   lastEdited: string;
 }
 
-const creations: Creation[] = [
+const initialCreations: Creation[] = [
   { id: 1, title: "Space Tap Shooter", type: "Game", status: "Published", plays: 1240, rating: 4.5, thumbnail: "🚀", lastEdited: "2h ago" },
   { id: 2, title: "Biology Cell Explorer", type: "AR Lesson", status: "Draft", plays: 0, rating: 0, thumbnail: "🧬", lastEdited: "1d ago" },
   { id: 3, title: "Math Quiz Runner", type: "Game", status: "Published", plays: 890, rating: 4.2, thumbnail: "🧮", lastEdited: "3d ago" },
@@ -24,24 +24,51 @@ const creations: Creation[] = [
 ];
 
 export default function MyCreationsPage() {
+  const [projects, setProjects] = useState<Creation[]>(initialCreations);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
+
+  function deleteProject(id: number) {
+    setProjects(prev => prev.filter(p => p.id !== id));
+    setMenuOpen(null);
+  }
+
+  function togglePublish(id: number) {
+    setProjects(prev =>
+      prev.map(p =>
+        p.id === id
+          ? { ...p, status: p.status === "Published" ? "Draft" as const : "Published" as const }
+          : p
+      )
+    );
+    setMenuOpen(null);
+  }
+
+  function handleEdit(id: number) {
+    console.log("Edit project:", id);
+    setMenuOpen(null);
+  }
+
+  function handleView(id: number) {
+    console.log("View project:", id);
+    setMenuOpen(null);
+  }
 
   return (
     <div className="space-y-6 max-w-6xl animate-fade-in">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Creations</h1>
-        <span className="text-xs text-muted-foreground">{creations.length} projects</span>
+        <span className="text-xs text-muted-foreground">{projects.length} projects</span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {creations.map((item) => (
-          <div key={item.id} className="glass-card rounded-xl overflow-hidden group cursor-pointer hover-lift glow-hover relative">
+        {projects.map((item) => (
+          <div key={item.id} onClick={() => handleEdit(item.id)} className="glass-card rounded-xl overflow-hidden group cursor-pointer hover-lift glow-hover relative">
             <div className="aspect-video bg-secondary/20 flex items-center justify-center text-4xl relative">
               {item.thumbnail}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button className="p-2 rounded-lg bg-primary/80 text-white hover:bg-primary transition-colors"><Edit className="h-3.5 w-3.5" /></button>
+                <button onClick={(e) => { e.stopPropagation(); handleEdit(item.id); }} className="p-2 rounded-lg bg-primary/80 text-primary-foreground hover:bg-primary transition-colors"><Edit className="h-3.5 w-3.5" /></button>
                 {item.status === "Published" && (
-                  <button className="p-2 rounded-lg bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 transition-colors"><Eye className="h-3.5 w-3.5" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); handleView(item.id); }} className="p-2 rounded-lg bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-secondary/70 transition-colors"><Eye className="h-3.5 w-3.5" /></button>
                 )}
               </div>
             </div>
@@ -54,11 +81,11 @@ export default function MyCreationsPage() {
                   </button>
                   {menuOpen === item.id && (
                     <div className="absolute right-0 top-6 z-10 glass-panel rounded-lg py-1 min-w-[120px] animate-fade-in shadow-xl">
-                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2"><Edit className="h-3 w-3" /> Edit</button>
-                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(item.id); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2"><Edit className="h-3 w-3" /> Edit</button>
+                      <button onClick={(e) => { e.stopPropagation(); togglePublish(item.id); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2">
                         {item.status === "Published" ? <><EyeOff className="h-3 w-3" /> Unpublish</> : <><Upload className="h-3 w-3" /> Publish</>}
                       </button>
-                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2 text-destructive"><Trash2 className="h-3 w-3" /> Delete</button>
+                      <button onClick={(e) => { e.stopPropagation(); deleteProject(item.id); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2 text-destructive"><Trash2 className="h-3 w-3" /> Delete</button>
                     </div>
                   )}
                 </div>
