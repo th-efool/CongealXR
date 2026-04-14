@@ -273,7 +273,7 @@ export default function CreatorStudioPage() {
                 border: `1px solid ${node.block.color.replace("0.3", "0.6")}`,
               }}
             >
-              <node.block.icon className="h-4 w-4" />
+              {(() => { const Icon = node.block.icon; return <Icon className="h-4 w-4" />; })()}
               {node.block.label}
             </div>
           ))}
@@ -286,7 +286,7 @@ export default function CreatorStudioPage() {
             {selected ? (
               <div className="space-y-4 animate-fade-in">
                 <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: selected.block.color }}>
-                  <selected.block.icon className="h-4 w-4" />
+                  {(() => { const Icon = selected.block.icon; return <Icon className="h-4 w-4" />; })()}
                   <span className="text-sm font-medium">{selected.block.label}</span>
                 </div>
 
