@@ -204,13 +204,12 @@ export default function AnchorModePage() {
 
       <div className="flex flex-1 min-h-0">
         {/* Left: Object List */}
-        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: leftOpen ? leftWidth : 0 }}>
+        <div ref={leftRef} className="shrink-0 overflow-hidden" style={{ width: leftOpen ? 280 : 0, transition: leftOpen ? 'none' : 'width 0.2s' }}>
           <ObjectListPanel
             objects={objects}
             selectedId={selectedId}
             onSelect={setSelectedId}
             onAdd={addObject}
-            width={leftWidth}
           />
         </div>
 
@@ -225,19 +224,13 @@ export default function AnchorModePage() {
         {/* Center: Preview Workspace */}
         <div className="flex-1 flex flex-col items-center justify-center min-w-0">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
-          <div className="w-full h-[60%] flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
             <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
               {selected ? (
                 <span className="animate-fade-in">{selected.thumbnail}</span>
               ) : (
                 <span className="text-muted-foreground text-lg">No object selected</span>
               )}
-            </div>
-          </div>
-          <div className="w-full h-[40%] flex items-center justify-center">
-            <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
-              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Drop image here to create object</p>
             </div>
           </div>
         </div>
