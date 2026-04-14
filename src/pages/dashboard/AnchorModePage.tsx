@@ -265,7 +265,7 @@ export default function AnchorModePage() {
 /* ─── Object List Panel ─── */
 function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
   return (
-    <div className="w-64 shrink-0 p-4 overflow-auto">
+    <div className="w-full h-full shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
