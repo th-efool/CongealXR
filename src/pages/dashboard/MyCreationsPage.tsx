@@ -1,19 +1,76 @@
-export default function MyCreationsPage() {
-  return (
-    <div className="space-y-6 max-w-6xl">
-      <h1 className="text-2xl font-bold">My Creations</h1>
+import { Play, Star, MoreVertical, Edit, Eye, Trash2, Upload, EyeOff } from "lucide-react";
+import { useState } from "react";
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <div key={i} className="glass-card rounded-xl overflow-hidden group cursor-pointer">
-            <div className="aspect-video bg-secondary/30" />
-            <div className="p-4 space-y-2">
-              <div className="h-4 w-3/4 bg-secondary/50 rounded" />
-              <div className="flex items-center gap-3 mt-2">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Status</span>
-                <span className="h-2 w-2 rounded-full bg-green-500/60" />
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground ml-auto">Type</span>
-                <div className="h-3 w-12 bg-secondary/40 rounded" />
+interface Creation {
+  id: number;
+  title: string;
+  type: "Game" | "AR Lesson";
+  status: "Published" | "Draft";
+  plays: number;
+  rating: number;
+  thumbnail: string;
+  lastEdited: string;
+}
+
+const creations: Creation[] = [
+  { id: 1, title: "Space Tap Shooter", type: "Game", status: "Published", plays: 1240, rating: 4.5, thumbnail: "🚀", lastEdited: "2h ago" },
+  { id: 2, title: "Biology Cell Explorer", type: "AR Lesson", status: "Draft", plays: 0, rating: 0, thumbnail: "🧬", lastEdited: "1d ago" },
+  { id: 3, title: "Math Quiz Runner", type: "Game", status: "Published", plays: 890, rating: 4.2, thumbnail: "🧮", lastEdited: "3d ago" },
+  { id: 4, title: "Solar System Tour", type: "AR Lesson", status: "Published", plays: 2100, rating: 4.8, thumbnail: "🪐", lastEdited: "1w ago" },
+  { id: 5, title: "Chemistry Molecules", type: "AR Lesson", status: "Draft", plays: 0, rating: 0, thumbnail: "⚗️", lastEdited: "2w ago" },
+  { id: 6, title: "Word Collect", type: "Game", status: "Published", plays: 456, rating: 3.9, thumbnail: "📝", lastEdited: "3w ago" },
+  { id: 7, title: "Anatomy AR", type: "AR Lesson", status: "Published", plays: 780, rating: 4.6, thumbnail: "🫀", lastEdited: "1m ago" },
+  { id: 8, title: "Color Match", type: "Game", status: "Draft", plays: 0, rating: 0, thumbnail: "🎨", lastEdited: "1m ago" },
+];
+
+export default function MyCreationsPage() {
+  const [menuOpen, setMenuOpen] = useState<number | null>(null);
+
+  return (
+    <div className="space-y-6 max-w-6xl animate-fade-in">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">My Creations</h1>
+        <span className="text-xs text-muted-foreground">{creations.length} projects</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {creations.map((item) => (
+          <div key={item.id} className="glass-card rounded-xl overflow-hidden group cursor-pointer hover-lift glow-hover relative">
+            <div className="aspect-video bg-secondary/20 flex items-center justify-center text-4xl relative">
+              {item.thumbnail}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <button className="p-2 rounded-lg bg-primary/80 text-white hover:bg-primary transition-colors"><Edit className="h-3.5 w-3.5" /></button>
+                {item.status === "Published" && (
+                  <button className="p-2 rounded-lg bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 transition-colors"><Eye className="h-3.5 w-3.5" /></button>
+                )}
+              </div>
+            </div>
+            <div className="p-3.5 space-y-2">
+              <div className="flex items-start justify-between">
+                <h3 className="font-medium text-sm truncate flex-1">{item.title}</h3>
+                <div className="relative">
+                  <button onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === item.id ? null : item.id); }} className="p-1 rounded hover:bg-secondary/50">
+                    <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                  {menuOpen === item.id && (
+                    <div className="absolute right-0 top-6 z-10 glass-panel rounded-lg py-1 min-w-[120px] animate-fade-in shadow-xl">
+                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2"><Edit className="h-3 w-3" /> Edit</button>
+                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2">
+                        {item.status === "Published" ? <><EyeOff className="h-3 w-3" /> Unpublish</> : <><Upload className="h-3 w-3" /> Publish</>}
+                      </button>
+                      <button className="w-full px-3 py-1.5 text-left text-xs hover:bg-secondary/30 flex items-center gap-2 text-destructive"><Trash2 className="h-3 w-3" /> Delete</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${item.type === "Game" ? "badge-game" : "badge-ar"}`}>{item.type}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${item.status === "Published" ? "badge-published" : "badge-draft"}`}>{item.status}</span>
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                {item.plays > 0 && <span className="flex items-center gap-1"><Play className="h-3 w-3" />{item.plays.toLocaleString()}</span>}
+                {item.rating > 0 && <span className="flex items-center gap-1"><Star className="h-3 w-3 text-yellow-500" />{item.rating}</span>}
+                <span className="ml-auto">{item.lastEdited}</span>
               </div>
             </div>
           </div>
