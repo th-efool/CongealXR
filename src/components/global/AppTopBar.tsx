@@ -8,7 +8,7 @@ export function AppTopBar() {
   const navigate = useNavigate();
 
   return (
-    <header className="h-14 flex items-center gap-4 border-b border-border/50 px-4 glass-panel">
+    <header className="h-14 flex items-center gap-4 border-b border-border/50 px-4 bg-[#0d0d14]">
       <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
 
       <div className="flex-1 max-w-md">
