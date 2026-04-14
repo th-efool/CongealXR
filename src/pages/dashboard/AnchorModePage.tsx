@@ -139,9 +139,9 @@ export default function AnchorModePage() {
     setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, ...updates } : obj));
   }
 
-  function addObject() {
+  function addObject(name?: string) {
     const newObj: ARObject = {
-      id: Date.now(), name: "New Object", thumbnail: "📦",
+      id: Date.now(), name: name || "New Object", thumbnail: "📦",
       modelStatus: "missing", labels: [], quizEnabled: false, questions: [],
     };
     setObjects(prev => [...prev, newObj]);
