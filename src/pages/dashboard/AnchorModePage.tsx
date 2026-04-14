@@ -79,6 +79,58 @@ export default function AnchorModePage() {
   const [selectedId, setSelectedId] = useState<number>(sampleObjects[0].id);
   const [published, setPublished] = useState(false);
 
+  // Panel resize + toggle state
+  const [leftWidth, setLeftWidth] = useState(280);
+  const [rightWidth, setRightWidth] = useState(320);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+
+  function startLeftResize() {
+    function onMove(e: MouseEvent) {
+      const newWidth = e.clientX;
+      if (newWidth < 180) { setLeftOpen(false); return; }
+      setLeftWidth(Math.min(newWidth, 500));
+    }
+    function onUp() {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startRightResize() {
+    function onMove(e: MouseEvent) {
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth < 200) { setRightOpen(false); return; }
+      setRightWidth(Math.min(newWidth, 500));
+    }
+    function onUp() {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function toggleLeft() {
+    if (!leftOpen) setLeftWidth(280);
+    setLeftOpen(prev => !prev);
+  }
+
+  function toggleRight() {
+    if (!rightOpen) setRightWidth(320);
+    setRightOpen(prev => !prev);
+  }
+
   function updateObject(id: number, updates: Partial<ARObject>) {
     setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, ...updates } : obj));
   }
