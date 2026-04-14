@@ -149,6 +149,31 @@ export default function AnchorModePage() {
           onAdd={addObject}
         />
 
+        {/* Center: Preview Workspace */}
+        <div className="flex-1 flex flex-col items-center justify-center border-l border-border/50 border-r border-border/50">
+          {/* Preview Label */}
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
+
+          {/* 3D Preview Area */}
+          <div className="w-full h-[60%] flex items-center justify-center">
+            <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
+              {selected ? (
+                <span className="animate-fade-in">{selected.thumbnail}</span>
+              ) : (
+                <span className="text-muted-foreground text-lg">No object selected</span>
+              )}
+            </div>
+          </div>
+
+          {/* Drop Zone */}
+          <div className="w-full h-[40%] flex items-center justify-center">
+            <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
+              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Drop image here to create object</p>
+            </div>
+          </div>
+        </div>
+
         {/* Right: Object Editor */}
         <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
       </div>
@@ -167,7 +192,7 @@ export default function AnchorModePage() {
 /* ─── Object List Panel ─── */
 function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
   return (
-    <div className="flex-1 p-4 overflow-auto">
+    <div className="w-64 shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
@@ -175,13 +200,7 @@ function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: AR
         </Button>
       </div>
 
-      {/* Upload area */}
-      <div className="drag-placeholder rounded-xl p-6 mb-4 text-center cursor-pointer hover:border-primary/50 transition-colors">
-        <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-        <p className="text-xs text-muted-foreground">Drag & drop images to create objects</p>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {objects.map((obj) => {
           const status = getObjectStatus(obj);
           const cfg = statusConfig[status];
@@ -191,16 +210,16 @@ function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: AR
               onClick={() => onSelect(obj.id)}
               className={`glass-card rounded-xl overflow-hidden cursor-pointer hover-lift transition-all ${selectedId === obj.id ? "ring-2 ring-primary" : ""}`}
             >
-              <div className="aspect-square bg-secondary/20 flex items-center justify-center text-3xl relative">
+              <div className="aspect-[4/3] bg-secondary/20 flex items-center justify-center text-2xl relative">
                 {obj.thumbnail}
                 <div className={`absolute top-2 right-2 h-2.5 w-2.5 rounded-full ${cfg.dot}`} />
               </div>
-              <div className="p-2.5 space-y-1.5">
-                <p className="text-[11px] font-medium truncate">{obj.name}</p>
-                <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[9px] text-muted-foreground">
-                  <span>{obj.modelStatus === "added" ? "Model ✓" : "No model"}</span>
-                  <span>{obj.labels.length} label{obj.labels.length !== 1 ? "s" : ""}</span>
-                  {obj.quizEnabled && <span>Quiz ✓</span>}
+              <div className="p-2 space-y-1">
+                <p className="text-[10px] font-medium truncate">{obj.name}</p>
+                <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-[8px] text-muted-foreground">
+                  <span>{obj.modelStatus === "added" ? "✓" : "—"}</span>
+                  <span>{obj.labels.length}L</span>
+                  {obj.quizEnabled && <span>Q✓</span>}
                 </div>
               </div>
             </div>
