@@ -59,11 +59,11 @@ export default function Navbar() {
         </div>
         <div className="flex items-center gap-6 text-xs text-white/50">
           <div className="hidden lg:flex items-center gap-6 mr-4 border-r border-white/10 pr-6">
-            <Link to="#" className="hover:text-white transition-colors">Docs</Link>
-            <Link to="#" className="hover:text-white transition-colors">Community</Link>
+            <Link to="/app/templates" className="hover:text-white transition-colors">Docs</Link>
+            <Link to="/app/explore" className="hover:text-white transition-colors">Community</Link>
           </div>
-          <Link to="#" className="hidden md:flex hover:text-white transition-colors">Log in</Link>
-          <Link to="#" className="font-normal bg-white text-black px-4 py-1.5 rounded-full hover:bg-white/90 transition-colors">
+          <Link to="/app" className="hidden md:flex hover:text-white transition-colors">Log in</Link>
+          <Link to="/app" className="font-normal bg-white text-black px-4 py-1.5 rounded-full hover:bg-white/90 transition-colors">
             Get Started
           </Link>
         </div>

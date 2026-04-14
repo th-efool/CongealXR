@@ -16,22 +16,22 @@ export default function Footer() {
         </div>
         <div className="flex flex-col gap-2 text-xs text-white/50">
           <span className="text-white font-medium mb-1 tracking-tight">Platform</span>
-          <Link to="#" className="hover:text-white transition-colors">Studio App</Link>
-          <Link to="#" className="hover:text-white transition-colors">Ecosystem</Link>
-          <Link to="#" className="hover:text-white transition-colors">Documentation</Link>
+          <Link to="/app/studio" className="hover:text-white transition-colors">Studio App</Link>
+          <Link to="/app/explore" className="hover:text-white transition-colors">Ecosystem</Link>
+          <Link to="/app/templates" className="hover:text-white transition-colors">Documentation</Link>
         </div>
         <div className="flex flex-col gap-2 text-xs text-white/50">
           <span className="text-white font-medium mb-1 tracking-tight">Company</span>
-          <Link to="#" className="hover:text-white transition-colors">About</Link>
-          <Link to="#" className="hover:text-white transition-colors">Contact</Link>
-          <Link to="#" className="hover:text-white transition-colors">Terms & Privacy</Link>
+          <Link to="/" className="hover:text-white transition-colors">About</Link>
+          <Link to="/" className="hover:text-white transition-colors">Contact</Link>
+          <Link to="/" className="hover:text-white transition-colors">Terms & Privacy</Link>
         </div>
       </Reveal>
       <Reveal className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light text-white/30 border-t border-white/10 pt-6 scale-95 origin-left md:origin-center">
         <span>© {new Date().getFullYear()} Aura Platform Inc. All rights reserved.</span>
         <div className="flex gap-4">
-          <a href="#" className="hover:text-white transition-colors"><Icon icon="mdi:twitter" className="text-sm" /></a>
-          <a href="#" className="hover:text-white transition-colors"><Icon icon="mdi:discord" className="text-sm" /></a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Icon icon="mdi:twitter" className="text-sm" /></a>
+          <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Icon icon="mdi:discord" className="text-sm" /></a>
         </div>
       </Reveal>
     </footer>

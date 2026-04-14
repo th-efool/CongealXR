@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import Reveal from '../ui/Reveal';
 
@@ -51,44 +52,46 @@ export default function ExploreSection() {
             <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-1">Ecosystem Depth</h2>
             <p className="text-xs text-white/50">Complex mechanics built purely with AURA nodes.</p>
           </div>
-          <a href="#" className="text-xs font-medium text-white/50 hover:text-white transition-colors flex items-center gap-1 group pb-1">
+          <Link to="/app/explore" className="text-xs font-medium text-white/50 hover:text-white transition-colors flex items-center gap-1 group pb-1">
             Browse Market <Icon icon="solar:arrow-right-linear" className="group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
         </Reveal>
 
         <Reveal isStaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {games.map((game, i) => (
             <Reveal isStaggerItem key={i} style={{ transitionDelay: `${i * 75}ms` }} className="group cursor-pointer relative">
-              <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden glass-card border border-white/10">
-                {game.tag && (
-                  <div className={`absolute top-3 left-3 ${game.tagColor} text-white text-xs uppercase tracking-widest px-2 py-0.5 rounded shadow-lg z-40 scale-90 origin-top-left`}>
-                    {game.tag}
+              <Link to="/app/explore" className="block">
+                <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden glass-card border border-white/10">
+                  {game.tag && (
+                    <div className={`absolute top-3 left-3 ${game.tagColor} text-white text-xs uppercase tracking-widest px-2 py-0.5 rounded shadow-lg z-40 scale-90 origin-top-left`}>
+                      {game.tag}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm z-30">
+                    <span className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                      Play Instantly
+                    </span>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 backdrop-blur-sm z-30">
-                  <span className="bg-white text-black px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                    Play Instantly
-                  </span>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 z-10"></div>
-                <div className="absolute inset-0 bg-[#0A0A0A] flex items-center justify-center">
-                  <Icon icon={game.icon} className={`text-5xl ${game.iconColor} transform group-hover:scale-110 transition-transform duration-700`} />
-                </div>
-                <div className="absolute top-3 right-3 z-20 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <div className="bg-black/50 backdrop-blur-md border border-white/10 rounded px-1.5 py-0.5 text-xs text-white/70 flex items-center gap-1">
-                    <Icon icon="solar:eye-linear" /> {game.views}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 z-10"></div>
+                  <div className="absolute inset-0 bg-[#0A0A0A] flex items-center justify-center">
+                    <Icon icon={game.icon} className={`text-5xl ${game.iconColor} transform group-hover:scale-110 transition-transform duration-700`} />
+                  </div>
+                  <div className="absolute top-3 right-3 z-20 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/50 backdrop-blur-md border border-white/10 rounded px-1.5 py-0.5 text-xs text-white/70 flex items-center gap-1">
+                      <Icon icon="solar:eye-linear" /> {game.views}
+                    </div>
+                  </div>
+                  <div className="absolute bottom-3 left-3 right-3 z-20">
+                    <div className="flex gap-1 mb-1.5">
+                      {game.categories.map((cat, idx) => (
+                        <span key={idx} className={`text-xs font-medium px-1.5 py-0.5 border rounded tracking-wide uppercase scale-90 origin-left ${cat.cls}`}>{cat.label}</span>
+                      ))}
+                    </div>
+                    <h3 className="text-sm font-medium text-white tracking-tight leading-none mb-1">{game.title}</h3>
+                    <p className="text-xs text-white/40 line-clamp-1">{game.desc}</p>
                   </div>
                 </div>
-                <div className="absolute bottom-3 left-3 right-3 z-20">
-                  <div className="flex gap-1 mb-1.5">
-                    {game.categories.map((cat, idx) => (
-                      <span key={idx} className={`text-xs font-medium px-1.5 py-0.5 border rounded tracking-wide uppercase scale-90 origin-left ${cat.cls}`}>{cat.label}</span>
-                    ))}
-                  </div>
-                  <h3 className="text-sm font-medium text-white tracking-tight leading-none mb-1">{game.title}</h3>
-                  <p className="text-xs text-white/40 line-clamp-1">{game.desc}</p>
-                </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
         </Reveal>
