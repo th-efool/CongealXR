@@ -232,3 +232,76 @@
 ::selection { background: rgba(139, 92, 246, 0.4); color: white; }
 ::-webkit-scrollbar { width: 0.4rem; background: var(--bg-dark); }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 1rem; }
+
+/* Status Colors */
+.status-complete { color: #22c55e; }
+.status-partial { color: #eab308; }
+.status-empty { color: #ef4444; }
+.dot-complete { background-color: #22c55e; }
+.dot-partial { background-color: #eab308; }
+.dot-empty { background-color: #ef4444; }
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
+}
+.glow-hover:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.2), 0 0 80px rgba(139, 92, 246, 0.08);
+}
+
+/* Canvas grid */
+.canvas-grid {
+  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+}
+
+/* Drag placeholder */
+.drag-placeholder {
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.03);
+}
+
+/* Micro-interactions */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Type badges */
+.badge-game {
+  background: rgba(139, 92, 246, 0.15);
+  color: hsl(263 70% 68%);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+.badge-ar {
+  background: rgba(59, 130, 246, 0.15);
+  color: hsl(217 91% 70%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.badge-draft {
+  background: rgba(234, 179, 8, 0.12);
+  color: hsl(48 96% 60%);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+.badge-published {
+  background: rgba(34, 197, 94, 0.12);
+  color: hsl(142 71% 55%);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Connection line animation */
+@keyframes dash-flow {
+  to { stroke-dashoffset: -20; }
+}
+.animate-dash { animation: dash-flow 1s linear infinite; }
+
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 20px 4px rgba(139, 92, 246, 0.15); }
+}
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
