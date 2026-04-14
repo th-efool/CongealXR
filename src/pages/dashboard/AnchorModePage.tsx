@@ -261,19 +261,41 @@ export default function AnchorModePage() {
 }
 
 /* ─── Object List Panel ─── */
-function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
+function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: (name?: string) => void }) {
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        onAdd(file.name.replace(/\.[^/.]+$/, ""));
+      }
+    } else {
+      onAdd();
+    }
+  };
+
   return (
     <div className="w-full h-full shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => onAdd()}>
           <Plus className="h-3.5 w-3.5" /> Add
         </Button>
       </div>
 
       {/* Drop zone */}
       <div className="p-3 border-b border-border/50 mb-3">
-        <div className="drag-placeholder rounded-lg p-4 text-center">
+        <div
+          className="drag-placeholder rounded-lg p-4 text-center transition-colors hover:border-primary/50"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <Upload className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
           <p className="text-xs text-muted-foreground">Drop image to create object</p>
         </div>
