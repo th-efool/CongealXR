@@ -149,6 +149,31 @@ export default function AnchorModePage() {
           onAdd={addObject}
         />
 
+        {/* Center: Preview Workspace */}
+        <div className="flex-1 flex flex-col items-center justify-center border-l border-border/50 border-r border-border/50">
+          {/* Preview Label */}
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
+
+          {/* 3D Preview Area */}
+          <div className="w-full h-[60%] flex items-center justify-center">
+            <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
+              {selected ? (
+                <span className="animate-fade-in">{selected.thumbnail}</span>
+              ) : (
+                <span className="text-muted-foreground text-lg">No object selected</span>
+              )}
+            </div>
+          </div>
+
+          {/* Drop Zone */}
+          <div className="w-full h-[40%] flex items-center justify-center">
+            <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
+              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">Drop image here to create object</p>
+            </div>
+          </div>
+        </div>
+
         {/* Right: Object Editor */}
         <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
       </div>
