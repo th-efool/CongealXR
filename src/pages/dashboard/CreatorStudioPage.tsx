@@ -269,12 +269,13 @@ export default function CreatorStudioPage() {
               key={node.id}
               onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
               onClick={(e) => { e.stopPropagation(); handleNodeClick(node.id); }}
-              className={`absolute z-[2] flex items-center gap-2 px-4 py-3 rounded-xl cursor-grab active:cursor-grabbing transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""} ${connectingFrom ? "cursor-crosshair" : ""}`}
+              className={`absolute isolate flex items-center gap-2 px-4 py-3 rounded-xl cursor-grab active:cursor-grabbing transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""} ${connectingFrom ? "cursor-crosshair" : ""}`}
               style={{
                 left: node.x,
                 top: node.y,
-                background: node.block.color,
-                border: `1px solid ${node.block.color.replace("0.3", "0.6")}`,
+                zIndex: draggingRef.current?.id === node.id ? 999 : 2,
+                backgroundColor: node.block.color.replace("0.3", "0.15"),
+                border: `1px solid ${node.block.color.replace("0.3", "0.4")}`,
               }}
             >
               {(() => { const Icon = node.block.icon; return <Icon className="h-4 w-4" />; })()}
