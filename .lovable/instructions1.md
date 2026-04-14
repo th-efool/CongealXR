@@ -1,454 +1,189 @@
-\# Anchor Mode — Panel Control System (Resize + Toggle)
-
-
+# Anchor Mode — Resize System Fix (Smooth + Clamped + UX Cleanup)
 
 Goal:
+- Make resize follow cursor EXACTLY (no sliding feeling)
+- Prevent auto-collapse (use hard limits instead)
+- Move drop zone into left panel (above objects)
 
+---
 
+# 1. FIX RESIZE MECHANISM (CRITICAL)
 
-Make LEFT and RIGHT panels:
+## PROBLEM
 
+Current resize uses:
+- setState inside mousemove
+→ causes lag + “sliding feel”
 
+---
 
-\- Resizable (drag to adjust width)
+## FIX: USE REF + DIRECT STYLE MUTATION
 
+### ADD REF
 
+const leftRef = useRef<HTMLDivElement>(null);
 
-\- Toggleable (collapse/expand)
+---
 
+## REPLACE startLeftResize WITH:
 
+function startLeftResize(e) {
+  e.preventDefault();
 
-\- Auto-collapse when too small
+  function onMove(e) {
+    if (!leftRef.current) return;
 
+    let newWidth = e.clientX;
 
+    // HARD LIMITS
+    if (newWidth < 180) newWidth = 180;
+    if (newWidth > 420) newWidth = 420;
 
-CENTER panel remains flexible.
+    leftRef.current.style.width = newWidth + "px";
+  }
 
+  function onUp() {
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+  }
 
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+}
 
-\---
+---
 
-
-
-\# 1. ADD PANEL STATE
-
-
-
-Inside AnchorModePage:
-
-
-
-const \[leftWidth, setLeftWidth] = useState(280);
-
-
-
-const \[rightWidth, setRightWidth] = useState(320);
-
-
-
-const \[leftOpen, setLeftOpen] = useState(true);
-
-
-
-const \[rightOpen, setRightOpen] = useState(true);
-
-
-
-\---
-
-
-
-\# 2. APPLY WIDTH STYLES
-
-
+## APPLY REF
 
 LEFT PANEL:
 
+<div ref={leftRef} style={{ width: 280 }}>
 
+---
 
-style={{ width: leftOpen ? leftWidth : 0 }}
+# RESULT
 
+Resize now:
+- follows cursor exactly
+- no lag
+- no stepping
+- feels native
 
+---
 
-RIGHT PANEL:
+# 2. REMOVE AUTO COLLAPSE LOGIC
 
+## DELETE THIS TYPE OF CODE
 
+if (width < 120) setLeftOpen(false)
 
-style={{ width: rightOpen ? rightWidth : 0 }}
+---
 
+## REPLACE WITH HARD CLAMP
 
+min = 180  
+max = 420  
 
-\---
+---
 
+# RESULT
 
+Panel:
+- never disappears unexpectedly
+- user stays in control
 
-\# 3. ADD RESIZE HANDLES (CRITICAL)
+---
 
+# 3. REMOVE COLUMN STEPPING LOGIC
 
+## DELETE:
 
-\## LEFT HANDLE
+2-column → 1-column switching logic
 
+---
 
+## REPLACE WITH:
 
-Add a thin divider between LEFT and CENTER:
+grid-cols-2 ALWAYS
 
+---
 
+OR (better):
 
-<div
+auto-fit responsive:
 
+grid-cols-[repeat(auto-fill,minmax(120px,1fr))]
 
+---
 
-&#x20; className="w-1 cursor-col-resize bg-border/50"
+# RESULT
 
+Smooth layout → no jumps
 
+---
 
-&#x20; onMouseDown={startLeftResize}
+# 4. MOVE DROP ZONE (IMPORTANT UX FIX)
 
+## CURRENT (WRONG)
 
+Drop zone in CENTER
 
-/>
+---
 
+## MOVE TO LEFT PANEL TOP
 
+Inside left panel:
 
-\---
+ADD ABOVE OBJECT GRID:
 
+<div className="p-3 border-b border-border/50">
+  <div className="drag-placeholder rounded-lg p-4 text-center">
+    <Upload className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
+    <p className="text-xs text-muted-foreground">
+      Drop image to create object
+    </p>
+  </div>
+</div>
 
+---
 
-\## RIGHT HANDLE
+## REMOVE FROM CENTER PANEL
 
+Delete drop zone from center completely
 
+---
 
-<div
+# RESULT
 
+Flow becomes:
 
+Drop → Object appears → Select → Preview → Edit
 
-&#x20; className="w-1 cursor-col-resize bg-border/50"
+---
 
+# 5. OPTIONAL (HIGH VALUE — SMOOTHNESS BOOST)
 
+Add:
 
-&#x20; onMouseDown={startRightResize}
+document.body.style.cursor = "col-resize";
 
+on start
 
+and reset on mouseup
 
-/>
+---
 
+# 6. FINAL EXPECTED BEHAVIOR
 
+User experiences:
 
-\---
+- Drag feels locked to cursor (no lag)
+- Panel resizes continuously (not stepped)
+- Panel never disappears unexpectedly
+- Drop action clearly belongs to object system
 
+---
 
+# FINAL RULE
 
-\# 4. RESIZE LOGIC
-
-
-
-\## LEFT RESIZE
-
-
-
-function startLeftResize(e) {
-
-
-
-&#x20; function onMove(e) {
-
-
-
-&#x20;   const newWidth = e.clientX;
-
-
-
-&#x20;   if (newWidth < 180) {
-
-
-
-&#x20;     setLeftOpen(false);
-
-
-
-&#x20;     return;
-
-
-
-&#x20;   }
-
-
-
-&#x20;   setLeftWidth(Math.min(newWidth, 500));
-
-
-
-&#x20; }
-
-
-
-&#x20; function onUp() {
-
-
-
-&#x20;   window.removeEventListener("mousemove", onMove);
-
-
-
-&#x20;   window.removeEventListener("mouseup", onUp);
-
-
-
-&#x20; }
-
-
-
-&#x20; window.addEventListener("mousemove", onMove);
-
-
-
-&#x20; window.addEventListener("mouseup", onUp);
-
-
-
-}
-
-
-
-\---
-
-
-
-\## RIGHT RESIZE
-
-
-
-function startRightResize(e) {
-
-
-
-&#x20; function onMove(e) {
-
-
-
-&#x20;   const newWidth = window.innerWidth - e.clientX;
-
-
-
-&#x20;   if (newWidth < 200) {
-
-
-
-&#x20;     setRightOpen(false);
-
-
-
-&#x20;     return;
-
-
-
-&#x20;   }
-
-
-
-&#x20;   setRightWidth(Math.min(newWidth, 500));
-
-
-
-&#x20; }
-
-
-
-&#x20; function onUp() {
-
-
-
-&#x20;   window.removeEventListener("mousemove", onMove);
-
-
-
-&#x20;   window.removeEventListener("mouseup", onUp);
-
-
-
-&#x20; }
-
-
-
-&#x20; window.addEventListener("mousemove", onMove);
-
-
-
-&#x20; window.addEventListener("mouseup", onUp);
-
-
-
-}
-
-
-
-\---
-
-
-
-\# 5. ADD TOGGLE BUTTONS
-
-
-
-\## LEFT TOGGLE
-
-
-
-Top-left corner:
-
-
-
-<button onClick={() => setLeftOpen(prev => !prev)}>
-
-
-
-&#x20; Toggle
-
-
-
-</button>
-
-
-
-\---
-
-
-
-\## RIGHT TOGGLE
-
-
-
-Top-right corner:
-
-
-
-<button onClick={() => setRightOpen(prev => !prev)}>
-
-
-
-&#x20; Toggle
-
-
-
-</button>
-
-
-
-\---
-
-
-
-\# 6. CENTER PANEL BEHAVIOR
-
-
-
-Ensure:
-
-
-
-className="flex-1"
-
-
-
-It should automatically expand when panels collapse.
-
-
-
-\---
-
-
-
-\# 7. MIN WIDTH RULES
-
-
-
-LEFT:
-
-
-
-\- Minimum: 180px
-
-
-
-\- Below → collapse
-
-
-
-RIGHT:
-
-
-
-\- Minimum: 200px
-
-
-
-\- Below → collapse
-
-
-
-\---
-
-
-
-\# 8. OPTIONAL (HIGH VALUE)
-
-
-
-When reopening panel:
-
-
-
-if (!leftOpen) setLeftWidth(280)
-
-
-
-if (!rightOpen) setRightWidth(320)
-
-
-
-\---
-
-
-
-\# 9. UX RESULT
-
-
-
-User can:
-
-
-
-\- Drag to resize panels
-
-
-
-\- Collapse panels by shrinking
-
-
-
-\- Toggle panels manually
-
-
-
-\- Focus fully on center workspace
-
-
-
-\---
-
-
-
-\# FINAL GOAL
-
-
-
-The UI should feel like:
-
-
-
-A professional editor where panels adapt to the user's focus.
-
-
-
-Not a fixed layout.
-
+Resize = direct manipulation, not state simulation
