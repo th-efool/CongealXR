@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Save, Upload, Plus, Image as ImageIcon, Sparkles, Check, AlertCircle, Trash2, ExternalLink, Download, X, Box, Tag, HelpCircle, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
@@ -221,6 +222,12 @@ function ObjectEditorPanel({
   onRemove: (id: number) => void;
 }) {
 
+  function updateLabel(labelId: number, updates: Partial<ObjectLabel>) {
+    updateObject(object!.id, {
+      labels: object!.labels.map(l => l.id === labelId ? { ...l, ...updates } : l),
+    });
+  }
+
   if (!object) {
     return (
       <div className="w-80 border-l border-border/50 shrink-0 flex items-center justify-center glass-panel">
@@ -283,18 +290,48 @@ function ObjectEditorPanel({
           {object.labels.length > 0 ? (
             <div className="space-y-2">
               {object.labels.map((label) => (
-                <div key={label.id} className="glass-card rounded-lg p-3 flex items-start gap-2.5">
-                  <ChevronRight className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-medium">{label.name}</p>
-                    <p className="text-[9px] text-muted-foreground mt-0.5">{label.description}</p>
-                    <p className="text-[8px] text-muted-foreground/60 mt-1 font-mono">
-                      x:{label.position.x} y:{label.position.y} z:{label.position.z}
-                    </p>
+                <div key={label.id} className="glass-card rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ChevronRight className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <Input
+                      value={label.name}
+                      onChange={(e) => updateLabel(label.id, { name: e.target.value })}
+                      className="h-6 text-[11px] font-medium bg-transparent border-border/30 px-1.5"
+                      placeholder="Label name"
+                    />
+                    <button className="text-muted-foreground/40 hover:text-destructive transition-colors shrink-0" onClick={() => updateObject(object.id, { labels: object.labels.filter(l => l.id !== label.id) })}>
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                   </div>
-                  <button className="text-muted-foreground/40 hover:text-destructive transition-colors" onClick={() => updateObject(object.id, { labels: object.labels.filter(l => l.id !== label.id) })}>
-                    <Trash2 className="h-3 w-3" />
-                  </button>
+                  <Input
+                    value={label.description}
+                    onChange={(e) => updateLabel(label.id, { description: e.target.value })}
+                    className="h-6 text-[9px] text-muted-foreground bg-transparent border-border/30 px-1.5"
+                    placeholder="Description"
+                  />
+                  <div className="flex gap-1.5">
+                    <Input
+                      type="number"
+                      value={label.position.x}
+                      onChange={(e) => updateLabel(label.id, { position: { ...label.position, x: parseFloat(e.target.value) || 0 } })}
+                      className="h-5 text-[8px] font-mono bg-transparent border-border/30 px-1 text-center"
+                      placeholder="x"
+                    />
+                    <Input
+                      type="number"
+                      value={label.position.y}
+                      onChange={(e) => updateLabel(label.id, { position: { ...label.position, y: parseFloat(e.target.value) || 0 } })}
+                      className="h-5 text-[8px] font-mono bg-transparent border-border/30 px-1 text-center"
+                      placeholder="y"
+                    />
+                    <Input
+                      type="number"
+                      value={label.position.z}
+                      onChange={(e) => updateLabel(label.id, { position: { ...label.position, z: parseFloat(e.target.value) || 0 } })}
+                      className="h-5 text-[8px] font-mono bg-transparent border-border/30 px-1 text-center"
+                      placeholder="z"
+                    />
+                  </div>
                 </div>
               ))}
               <Button variant="ghost" size="sm" className="text-[10px] w-full gap-1" onClick={() => updateObject(object.id, { labels: [...object.labels, { id: Date.now(), name: "New Label", description: "Edit me", position: { x: 0, y: 0, z: 0 } }] })}><Plus className="h-3 w-3" /> Add Label</Button>
