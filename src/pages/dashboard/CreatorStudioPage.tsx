@@ -92,12 +92,13 @@ export default function CreatorStudioPage() {
     draggingRef.current = { id: nodeId, offsetX, offsetY };
     document.body.style.cursor = "grabbing";
     document.body.style.userSelect = "none";
+    const dragId = nodeId;
 
     function onMove(ev: MouseEvent) {
       if (!draggingRef.current || !rect) return;
       const newX = Math.max(0, ev.clientX - rect.left - draggingRef.current.offsetX);
       const newY = Math.max(0, ev.clientY - rect.top - draggingRef.current.offsetY);
-      setNodes(prev => prev.map(n => n.id === draggingRef.current!.id ? { ...n, x: newX, y: newY } : n));
+      setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
     }
 
     function onUp() {
