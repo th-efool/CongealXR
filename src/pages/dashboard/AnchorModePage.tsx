@@ -337,7 +337,7 @@ function ObjectEditorPanel({
   }
 
   return (
-    <div key={object.id} className="w-80 border-l border-border/50 shrink-0 overflow-auto glass-panel">
+    <div key={object.id} className="w-full h-full overflow-auto glass-panel">
       <div className="p-4 space-y-6 animate-fade-in">
         {/* Header */}
         <div>
