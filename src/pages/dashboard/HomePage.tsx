@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus, FolderOpen, LayoutTemplate, GraduationCap, Play, Heart, Gamepad2, BookOpen, TrendingUp, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +27,30 @@ const stats = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [createModal, setCreateModal] = useState(false);
+  const [newProject, setNewProject] = useState({
+    title: "",
+    type: "Game",
+    template: "",
+    tags: "",
+  });
+
+  const handleQuickAction = (action: typeof quickActions[number]) => {
+    if (action.title.toLowerCase().includes("create")) {
+      setCreateModal(true);
+    } else {
+      navigate(action.route);
+    }
+  };
+
+  const handleCreate = () => {
+    setCreateModal(false);
+    if (newProject.type === "Game") {
+      navigate("/app/studio");
+    } else {
+      navigate("/app/anchor");
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-6xl animate-fade-in">
@@ -42,7 +67,7 @@ export default function HomePage() {
           {quickActions.map((action) => (
             <button
               key={action.title}
-              onClick={() => navigate(action.route)}
+              onClick={() => handleQuickAction(action)}
               className="glass-card rounded-xl p-5 text-left group cursor-pointer hover-lift glow-hover"
             >
               <action.icon className="h-8 w-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
@@ -116,6 +141,61 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Create Modal */}
+      {createModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="glass-card rounded-xl p-6 w-96 space-y-4">
+            <h2 className="text-sm font-bold">Create New Project</h2>
+
+            <input
+              placeholder="Project Name"
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border/50 outline-none focus:ring-1 focus:ring-primary"
+              value={newProject.title}
+              onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
+            />
+
+            <select
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border/50 outline-none focus:ring-1 focus:ring-primary"
+              value={newProject.type}
+              onChange={(e) => setNewProject({ ...newProject, type: e.target.value })}
+            >
+              <option value="Game">Game</option>
+              <option value="AR Lesson">AR Lesson</option>
+            </select>
+
+            <input
+              placeholder="Template (optional)"
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border/50 outline-none focus:ring-1 focus:ring-primary"
+              value={newProject.template}
+              onChange={(e) => setNewProject({ ...newProject, template: e.target.value })}
+            />
+
+            <input
+              placeholder="Tags (comma separated)"
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border/50 outline-none focus:ring-1 focus:ring-primary"
+              value={newProject.tags}
+              onChange={(e) => setNewProject({ ...newProject, tags: e.target.value })}
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-3 py-1 text-xs bg-secondary/50 rounded hover:bg-secondary/70 transition-colors"
+                onClick={() => setCreateModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!newProject.title}
+                onClick={handleCreate}
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
