@@ -184,29 +184,42 @@ export default function AnchorModePage() {
     <div className="flex flex-col h-[calc(100vh-3.5rem)] -m-6">
       {/* Top Bar */}
       <div className="h-12 flex items-center gap-4 px-4 border-b border-border/50 glass-panel shrink-0">
+        <button onClick={toggleLeft} className="p-1.5 rounded-md hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground" title={leftOpen ? "Collapse left panel" : "Expand left panel"}>
+          {leftOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        </button>
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">AR Lesson</span>
         <div className="flex-1" />
         <span className="text-[10px] text-muted-foreground">{configured} / {objects.length} objects complete</span>
         <div className="h-1.5 w-24 bg-secondary/30 rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(configured / objects.length) * 100}%` }} />
         </div>
+        <button onClick={toggleRight} className="p-1.5 rounded-md hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground" title={rightOpen ? "Collapse right panel" : "Expand right panel"}>
+          {rightOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+        </button>
       </div>
 
       <div className="flex flex-1 min-h-0">
         {/* Left: Object List */}
-        <ObjectListPanel
-          objects={objects}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onAdd={addObject}
-        />
+        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: leftOpen ? leftWidth : 0 }}>
+          <ObjectListPanel
+            objects={objects}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onAdd={addObject}
+          />
+        </div>
+
+        {/* Left Resize Handle */}
+        {leftOpen && (
+          <div
+            className="w-1 cursor-col-resize bg-border/50 hover:bg-primary/50 transition-colors shrink-0"
+            onMouseDown={startLeftResize}
+          />
+        )}
 
         {/* Center: Preview Workspace */}
-        <div className="flex-1 flex flex-col items-center justify-center border-l border-border/50 border-r border-border/50">
-          {/* Preview Label */}
+        <div className="flex-1 flex flex-col items-center justify-center min-w-0">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
-
-          {/* 3D Preview Area */}
           <div className="w-full h-[60%] flex items-center justify-center">
             <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
               {selected ? (
@@ -216,8 +229,6 @@ export default function AnchorModePage() {
               )}
             </div>
           </div>
-
-          {/* Drop Zone */}
           <div className="w-full h-[40%] flex items-center justify-center">
             <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
               <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
@@ -226,8 +237,18 @@ export default function AnchorModePage() {
           </div>
         </div>
 
+        {/* Right Resize Handle */}
+        {rightOpen && (
+          <div
+            className="w-1 cursor-col-resize bg-border/50 hover:bg-primary/50 transition-colors shrink-0"
+            onMouseDown={startRightResize}
+          />
+        )}
+
         {/* Right: Object Editor */}
-        <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
+        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: rightOpen ? rightWidth : 0 }}>
+          <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
+        </div>
       </div>
 
       {/* Bottom Bar */}
