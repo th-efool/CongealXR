@@ -1,32 +1,10 @@
-What needs to happen
+\# MyCreationsPage — Make Editing + Actions Visible \& Functional
 
 
 
-You need to convert:
+Goal:
 
-
-
-STATIC LIST → MUTABLE PROJECT SYSTEM
-
-
-
-And wire:
-
-
-
-Edit
-
-Publish / Unpublish
-
-Delete
-
-View
-
-\# MyCreationsPage — Functional Behavior Implementation Guide
-
-
-
-This document defines how to make all buttons and actions fully functional.
+Make Edit, Delete, Publish actions visible, interactive, and state-driven.
 
 
 
@@ -34,31 +12,15 @@ This document defines how to make all buttons and actions fully functional.
 
 
 
-\# 1. CONVERT STATIC DATA → STATE
+\# 1. ADD EDIT MODAL (CRITICAL)
 
 
 
-\## CURRENT (WRONG)
+\## STEP 1 — ADD STATE
 
 
 
-const creations = \[...]
-
-
-
-\---
-
-
-
-\## FIX
-
-
-
-Replace with:
-
-
-
-const \[projects, setProjects] = useState(creations);
+const \[editingProject, setEditingProject] = useState<Creation | null>(null);
 
 
 
@@ -66,221 +28,19 @@ const \[projects, setProjects] = useState(creations);
 
 
 
-\## REPLACE ALL USAGE
-
-
-
-creations.map → projects.map  
-
-creations.length → projects.length  
-
-
-
-\---
-
-
-
-\# 2. DELETE PROJECT (CRITICAL)
-
-
-
-\## ADD FUNCTION
-
-
-
-function deleteProject(id) {
-
-&#x20; setProjects(prev => prev.filter(p => p.id !== id));
-
-}
-
-
-
-\---
-
-
-
-\## CONNECT BUTTON
-
-
-
-Replace:
-
-
-
-<button>Delete</button>
-
-
-
-WITH:
-
-
-
-<button onClick={() => deleteProject(item.id)}>
-
-3\. TOGGLE PUBLISH / UNPUBLISH
-
-ADD FUNCTION
-
-
-
-function togglePublish(id) {
-
-setProjects(prev =>
-
-prev.map(p =>
-
-p.id === id
-
-? { ...p, status: p.status === "Published" ? "Draft" : "Published" }
-
-: p
-
-)
-
-);
-
-}
-
-
-
-CONNECT BUTTON
-
-
-
-Replace:
-
-
-
-<button>Publish / Unpublish</button>
-
-
-
-WITH:
-
-
-
-<button onClick={() => togglePublish(item.id)}>
-
-
-
-
-
-\---
-
-
-
-\# 4. EDIT PROJECT (NAVIGATION)
-
-
-
-\## GOAL
-
-
-
-Clicking edit should open creator/editor page
-
-
-
-\---
-
-
-
-\## ADD HANDLER
+\## STEP 2 — CHANGE handleEdit
 
 
 
 function handleEdit(id) {
 
-&#x20; console.log("Edit project:", id);
+&#x20; const project = projects.find(p => p.id === id);
 
-}
-
-
-
-\---
-
-
-
-\## CONNECT BUTTON
-
-
-
-onClick={() => handleEdit(item.id)}
-
-
-
-\---
-
-
-
-(Replace later with actual router navigation)
-
-
-
-\---
-
-
-
-\# 5. VIEW PROJECT (PLAY MODE)
-
-
-
-\## ADD HANDLER
-
-
-
-function handleView(id) {
-
-&#x20; console.log("View project:", id);
-
-}
-
-
-
-\---
-
-
-
-\## CONNECT BUTTON
-
-
-
-onClick={() => handleView(item.id)}
-
-
-
-\---
-
-
-
-\# 6. CLOSE MENU AFTER ACTION
-
-
-
-After any menu click:
-
-
-
-setMenuOpen(null)
-
-
-
-\---
-
-
-
-Example:
-
-
-
-onClick={() => {
-
-&#x20; togglePublish(item.id);
+&#x20; setEditingProject(project || null);
 
 &#x20; setMenuOpen(null);
 
-}}
+}
 
 
 
@@ -288,19 +48,121 @@ onClick={() => {
 
 
 
-\# 7. PREVENT CARD CLICK COLLISION
+\## STEP 3 — ADD MODAL UI (BOTTOM OF RETURN)
 
 
 
-Wrap action buttons with:
+Add this BELOW grid:
 
 
 
-e.stopPropagation()
+{editingProject \&\& (
+
+&#x20; <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+&#x20;   <div className="glass-card p-6 rounded-xl w-80 space-y-4">
 
 
 
-Already done correctly — keep it.
+&#x20;     <h2 className="text-sm font-bold">Edit Project</h2>
+
+
+
+&#x20;     <input
+
+&#x20;       className="w-full bg-secondary/30 p-2 rounded text-xs"
+
+&#x20;       value={editingProject.title}
+
+&#x20;       onChange={(e) =>
+
+&#x20;         setEditingProject({ ...editingProject, title: e.target.value })
+
+&#x20;       }
+
+&#x20;     />
+
+
+
+&#x20;     <select
+
+&#x20;       className="w-full bg-secondary/30 p-2 rounded text-xs"
+
+&#x20;       value={editingProject.type}
+
+&#x20;       onChange={(e) =>
+
+&#x20;         setEditingProject({
+
+&#x20;           ...editingProject,
+
+&#x20;           type: e.target.value as "Game" | "AR Lesson"
+
+&#x20;         })
+
+&#x20;       }
+
+&#x20;     >
+
+&#x20;       <option value="Game">Game</option>
+
+&#x20;       <option value="AR Lesson">AR Lesson</option>
+
+&#x20;     </select>
+
+
+
+&#x20;     <div className="flex gap-2 justify-end">
+
+&#x20;       <button
+
+&#x20;         className="text-xs px-3 py-1 rounded bg-secondary/50"
+
+&#x20;         onClick={() => setEditingProject(null)}
+
+&#x20;       >
+
+&#x20;         Cancel
+
+&#x20;       </button>
+
+
+
+&#x20;       <button
+
+&#x20;         className="text-xs px-3 py-1 rounded bg-primary text-white"
+
+&#x20;         onClick={() => {
+
+&#x20;           setProjects(prev =>
+
+&#x20;             prev.map(p =>
+
+&#x20;               p.id === editingProject.id ? editingProject : p
+
+&#x20;             )
+
+&#x20;           );
+
+&#x20;           setEditingProject(null);
+
+&#x20;         }}
+
+&#x20;       >
+
+&#x20;         Save
+
+&#x20;       </button>
+
+&#x20;     </div>
+
+
+
+&#x20;   </div>
+
+&#x20; </div>
+
+)}
 
 
 
@@ -308,11 +170,93 @@ Already done correctly — keep it.
 
 
 
-\# 8. OPTIONAL: ADD CARD CLICK ACTION
+\# 2. MAKE DELETE \& PUBLISH VISIBLE (IMPORTANT UX FIX)
 
 
 
-Clicking entire card:
+Currently hidden in dropdown → bad UX
+
+
+
+\---
+
+
+
+\## ADD INLINE ACTION BUTTONS (ON CARD)
+
+
+
+Inside hover overlay, ADD:
+
+
+
+<button
+
+&#x20; onClick={(e) => {
+
+&#x20;   e.stopPropagation();
+
+&#x20;   togglePublish(item.id);
+
+&#x20; }}
+
+>
+
+&#x20; {item.status === "Published" ? "Unpublish" : "Publish"}
+
+</button>
+
+
+
+<button
+
+&#x20; onClick={(e) => {
+
+&#x20;   e.stopPropagation();
+
+&#x20;   deleteProject(item.id);
+
+&#x20; }}
+
+&#x20; className="text-red-500"
+
+>
+
+&#x20; Delete
+
+</button>
+
+
+
+\---
+
+
+
+\# 3. KEEP DROPDOWN (OPTIONAL SECONDARY ACTIONS)
+
+
+
+Keep menu for redundancy  
+
+But primary actions must be visible
+
+
+
+\---
+
+
+
+\# 4. FIX CARD CLICK BEHAVIOR
+
+
+
+Currently:
+
+click → edit (good)
+
+
+
+Keep:
 
 
 
@@ -324,7 +268,7 @@ onClick={() => handleEdit(item.id)}
 
 
 
-\# 9. FINAL EXPECTED BEHAVIOR
+\# 5. FINAL EXPECTED BEHAVIOR
 
 
 
@@ -332,15 +276,15 @@ User can:
 
 
 
-\- Delete project → instantly removed
+\- Click card → opens edit modal
 
-\- Publish / Unpublish → badge updates
+\- Change title/type → updates UI instantly
 
-\- Click Edit → opens editor (or logs for now)
+\- Click Publish → badge updates immediately
 
-\- Click View → opens preview (or logs)
+\- Click Delete → card disappears instantly
 
-\- Menu closes after action
+\- See actions without opening menu
 
 
 
@@ -352,55 +296,15 @@ User can:
 
 
 
-All UI actions must mutate `projects` state.
+Every action must:
+
+\- be visible
+
+\- mutate state
+
+\- reflect instantly in UI
 
 
 
-No button should be purely visual.
-
-🧠 What this fixes
-
-Before	After
-
-Static UI	Live project system
-
-Dead buttons	Real actions
-
-No state	Mutable state
-
-Fake dashboard	Functional app
-
-⚡ Important insight
-
-
-
-Now both:
-
-
-
-AnchorModePage ✅
-
-MyCreationsPage ✅
-
-
-
-are using:
-
-
-
-STATE = SOURCE OF TRUTH
-
-🚀 Next step (high leverage)
-
-
-
-Now you can connect both:
-
-
-
-👉 "Edit" → open AnchorMode with that object
-
-👉 "Publish" → reflect in marketplace
-
-👉 "Delete" → remove globally
+No hidden-only interactions.
 
