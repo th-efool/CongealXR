@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Save, Upload, Plus, Image as ImageIcon, Sparkles, Check, AlertCircle, Trash2, ExternalLink, Download, X, Box, Tag, HelpCircle, ChevronRight, Pencil, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Switch } from "@/components/ui/switch";
 
 interface ObjectLabel {
