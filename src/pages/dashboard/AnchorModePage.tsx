@@ -330,7 +330,7 @@ function ObjectEditorPanel({
 
   if (!object) {
     return (
-      <div className="w-80 border-l border-border/50 shrink-0 flex items-center justify-center glass-panel">
+      <div className="w-full h-full flex items-center justify-center glass-panel">
         <p className="text-xs text-muted-foreground">Select an object to configure</p>
       </div>
     );
