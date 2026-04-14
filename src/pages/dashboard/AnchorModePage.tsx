@@ -74,7 +74,14 @@ const statusConfig = {
 };
 
 export default function AnchorModePage() {
-  const [objects] = useState<ARObject[]>(sampleObjects);
+  const [objects, setObjects] = useState<ARObject[]>(sampleObjects);
+  function updateObject(id: number, updates: Partial<ARObject>) {
+  setObjects(prev =>
+    prev.map(obj =>
+      obj.id === id ? { ...obj, ...updates } : obj
+    )
+  );
+}
   const [selectedId, setSelectedId] = useState<number>(sampleObjects[0].id);
   const [published, setPublished] = useState(false);
 
@@ -127,7 +134,7 @@ export default function AnchorModePage() {
         />
 
         {/* Right: Object Editor */}
-        <ObjectEditorPanel object={selected} />
+        <ObjectEditorPanel object={selected} updateObject={updateObject} />
       </div>
 
       {/* Bottom Bar */}
@@ -189,8 +196,13 @@ function ObjectListPanel({ objects, selectedId, onSelect }: { objects: ARObject[
 }
 
 /* ─── Object Editor Panel ─── */
-function ObjectEditorPanel({ object }: { object: ARObject | null }) {
-  const [quizToggle, setQuizToggle] = useState(true);
+function ObjectEditorPanel({
+  object,
+  updateObject,
+}: {
+  object: ARObject | null;
+  updateObject: (id: number, updates: Partial<ARObject>) => void;
+}) {
 
   if (!object) {
     return (
@@ -235,7 +247,14 @@ function ObjectEditorPanel({ object }: { object: ARObject | null }) {
                 <p className="text-[10px] text-muted-foreground">No 3D model yet</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 text-[10px] gap-1"><Upload className="h-3 w-3" /> Upload 3D</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-[10px] gap-1"
+                  onClick={() => updateObject(object.id, { modelStatus: "added" })}
+                >
+                  <Upload className="h-3 w-3" /> Upload 3D
+                </Button>
                 <Button size="sm" className="flex-1 text-[10px] gap-1 bg-primary"><Sparkles className="h-3 w-3" /> Generate AI</Button>
               </div>
             </div>
@@ -278,7 +297,11 @@ function ObjectEditorPanel({ object }: { object: ARObject | null }) {
           icon={<HelpCircle className="h-3.5 w-3.5" />}
           title="Object Quiz"
           trailing={
-            <Switch checked={object.quizEnabled && quizToggle} onCheckedChange={setQuizToggle} className="scale-75" />
+            <Switch
+              checked={object.quizEnabled}
+              onCheckedChange={(val) =>
+                updateObject(object.id, { quizEnabled: val })
+              } className="scale-75" />
           }
         >
           {object.quizEnabled && quizToggle ? (
