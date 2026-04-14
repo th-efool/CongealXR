@@ -88,8 +88,8 @@ export default function AnchorModePage() {
   function startLeftResize() {
     function onMove(e: MouseEvent) {
       const newWidth = e.clientX;
-      if (newWidth < 180) { setLeftOpen(false); return; }
-      setLeftWidth(Math.min(newWidth, 500));
+      if (newWidth < 120) { setLeftOpen(false); return; }
+      setLeftWidth(Math.min(Math.max(newWidth, 120), 500));
     }
     function onUp() {
       window.removeEventListener("mousemove", onMove);
