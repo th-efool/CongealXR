@@ -26,6 +26,7 @@ const initialCreations: Creation[] = [
 export default function MyCreationsPage() {
   const [projects, setProjects] = useState<Creation[]>(initialCreations);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
+  const [editingProject, setEditingProject] = useState<Creation | null>(null);
 
   function deleteProject(id: number) {
     setProjects(prev => prev.filter(p => p.id !== id));
@@ -44,7 +45,8 @@ export default function MyCreationsPage() {
   }
 
   function handleEdit(id: number) {
-    console.log("Edit project:", id);
+    const project = projects.find(p => p.id === id);
+    setEditingProject(project || null);
     setMenuOpen(null);
   }
 
@@ -70,6 +72,10 @@ export default function MyCreationsPage() {
                 {item.status === "Published" && (
                   <button onClick={(e) => { e.stopPropagation(); handleView(item.id); }} className="p-2 rounded-lg bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-secondary/70 transition-colors"><Eye className="h-3.5 w-3.5" /></button>
                 )}
+                <button onClick={(e) => { e.stopPropagation(); togglePublish(item.id); }} className="p-2 rounded-lg bg-secondary/50 text-foreground backdrop-blur-sm hover:bg-secondary/70 transition-colors">
+                  {item.status === "Published" ? <EyeOff className="h-3.5 w-3.5" /> : <Upload className="h-3.5 w-3.5" />}
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); deleteProject(item.id); }} className="p-2 rounded-lg bg-destructive/80 text-destructive-foreground hover:bg-destructive transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             </div>
             <div className="p-3.5 space-y-2">
@@ -103,6 +109,39 @@ export default function MyCreationsPage() {
           </div>
         ))}
       </div>
+
+      {editingProject && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEditingProject(null)}>
+          <div className="glass-card p-6 rounded-xl w-80 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-sm font-bold">Edit Project</h2>
+            <input
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border"
+              value={editingProject.title}
+              onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
+            />
+            <select
+              className="w-full bg-secondary/30 p-2 rounded text-xs border border-border"
+              value={editingProject.type}
+              onChange={(e) => setEditingProject({ ...editingProject, type: e.target.value as "Game" | "AR Lesson" })}
+            >
+              <option value="Game">Game</option>
+              <option value="AR Lesson">AR Lesson</option>
+            </select>
+            <div className="flex gap-2 justify-end">
+              <button className="text-xs px-3 py-1 rounded bg-secondary/50 hover:bg-secondary/70 transition-colors" onClick={() => setEditingProject(null)}>Cancel</button>
+              <button
+                className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                onClick={() => {
+                  setProjects(prev => prev.map(p => p.id === editingProject.id ? editingProject : p));
+                  setEditingProject(null);
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
