@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Save, Upload, Plus, Image as ImageIcon, Sparkles, Check, AlertCircle, Trash2, ExternalLink, Download, X, Box, Tag, HelpCircle, ChevronRight, Pencil } from "lucide-react";
+import { Save, Upload, Plus, Image as ImageIcon, Sparkles, Check, AlertCircle, Trash2, ExternalLink, Download, X, Box, Tag, HelpCircle, ChevronRight, Pencil, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 
@@ -79,6 +79,58 @@ export default function AnchorModePage() {
   const [selectedId, setSelectedId] = useState<number>(sampleObjects[0].id);
   const [published, setPublished] = useState(false);
 
+  // Panel resize + toggle state
+  const [leftWidth, setLeftWidth] = useState(280);
+  const [rightWidth, setRightWidth] = useState(320);
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+
+  function startLeftResize() {
+    function onMove(e: MouseEvent) {
+      const newWidth = e.clientX;
+      if (newWidth < 180) { setLeftOpen(false); return; }
+      setLeftWidth(Math.min(newWidth, 500));
+    }
+    function onUp() {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startRightResize() {
+    function onMove(e: MouseEvent) {
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth < 200) { setRightOpen(false); return; }
+      setRightWidth(Math.min(newWidth, 500));
+    }
+    function onUp() {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function toggleLeft() {
+    if (!leftOpen) setLeftWidth(280);
+    setLeftOpen(prev => !prev);
+  }
+
+  function toggleRight() {
+    if (!rightOpen) setRightWidth(320);
+    setRightOpen(prev => !prev);
+  }
+
   function updateObject(id: number, updates: Partial<ARObject>) {
     setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, ...updates } : obj));
   }
@@ -132,29 +184,42 @@ export default function AnchorModePage() {
     <div className="flex flex-col h-[calc(100vh-3.5rem)] -m-6">
       {/* Top Bar */}
       <div className="h-12 flex items-center gap-4 px-4 border-b border-border/50 glass-panel shrink-0">
+        <button onClick={toggleLeft} className="p-1.5 rounded-md hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground" title={leftOpen ? "Collapse left panel" : "Expand left panel"}>
+          {leftOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        </button>
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">AR Lesson</span>
         <div className="flex-1" />
         <span className="text-[10px] text-muted-foreground">{configured} / {objects.length} objects complete</span>
         <div className="h-1.5 w-24 bg-secondary/30 rounded-full overflow-hidden">
           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(configured / objects.length) * 100}%` }} />
         </div>
+        <button onClick={toggleRight} className="p-1.5 rounded-md hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground" title={rightOpen ? "Collapse right panel" : "Expand right panel"}>
+          {rightOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+        </button>
       </div>
 
       <div className="flex flex-1 min-h-0">
         {/* Left: Object List */}
-        <ObjectListPanel
-          objects={objects}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onAdd={addObject}
-        />
+        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: leftOpen ? leftWidth : 0 }}>
+          <ObjectListPanel
+            objects={objects}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onAdd={addObject}
+          />
+        </div>
+
+        {/* Left Resize Handle */}
+        {leftOpen && (
+          <div
+            className="w-1 cursor-col-resize bg-border/50 hover:bg-primary/50 transition-colors shrink-0"
+            onMouseDown={startLeftResize}
+          />
+        )}
 
         {/* Center: Preview Workspace */}
-        <div className="flex-1 flex flex-col items-center justify-center border-l border-border/50 border-r border-border/50">
-          {/* Preview Label */}
+        <div className="flex-1 flex flex-col items-center justify-center min-w-0">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
-
-          {/* 3D Preview Area */}
           <div className="w-full h-[60%] flex items-center justify-center">
             <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
               {selected ? (
@@ -164,8 +229,6 @@ export default function AnchorModePage() {
               )}
             </div>
           </div>
-
-          {/* Drop Zone */}
           <div className="w-full h-[40%] flex items-center justify-center">
             <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
               <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
@@ -174,8 +237,18 @@ export default function AnchorModePage() {
           </div>
         </div>
 
+        {/* Right Resize Handle */}
+        {rightOpen && (
+          <div
+            className="w-1 cursor-col-resize bg-border/50 hover:bg-primary/50 transition-colors shrink-0"
+            onMouseDown={startRightResize}
+          />
+        )}
+
         {/* Right: Object Editor */}
-        <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
+        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: rightOpen ? rightWidth : 0 }}>
+          <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
+        </div>
       </div>
 
       {/* Bottom Bar */}
@@ -192,7 +265,7 @@ export default function AnchorModePage() {
 /* ─── Object List Panel ─── */
 function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
   return (
-    <div className="w-64 shrink-0 p-4 overflow-auto">
+    <div className="w-full h-full shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
@@ -257,14 +330,14 @@ function ObjectEditorPanel({
 
   if (!object) {
     return (
-      <div className="w-80 border-l border-border/50 shrink-0 flex items-center justify-center glass-panel">
+      <div className="w-full h-full flex items-center justify-center glass-panel">
         <p className="text-xs text-muted-foreground">Select an object to configure</p>
       </div>
     );
   }
 
   return (
-    <div key={object.id} className="w-80 border-l border-border/50 shrink-0 overflow-auto glass-panel">
+    <div key={object.id} className="w-full h-full overflow-auto glass-panel">
       <div className="p-4 space-y-6 animate-fade-in">
         {/* Header */}
         <div>
