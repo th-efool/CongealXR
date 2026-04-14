@@ -304,7 +304,7 @@ function ObjectEditorPanel({
               } className="scale-75" />
           }
         >
-          {object.quizEnabled && quizToggle ? (
+          {object.quizEnabled ? (
             object.questions.length > 0 ? (
               <div className="space-y-2">
                 {object.questions.map((q) => (
