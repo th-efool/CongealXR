@@ -94,14 +94,25 @@ export default function CreatorStudioPage() {
     document.body.style.userSelect = "none";
     const dragId = nodeId;
 
+    let rafId: number | null = null;
     function onMove(ev: MouseEvent) {
       if (!draggingRef.current || !rect) return;
-      const newX = Math.max(0, ev.clientX - rect.left - draggingRef.current.offsetX);
-      const newY = Math.max(0, ev.clientY - rect.top - draggingRef.current.offsetY);
-      setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!draggingRef.current || !rect) return;
+        const canvasW = rect.width;
+        const canvasH = rect.height;
+        const nodeW = 150;
+        const nodeH = 44;
+        const newX = Math.max(0, Math.min(ev.clientX - rect.left - draggingRef.current.offsetX, canvasW - nodeW));
+        const newY = Math.max(0, Math.min(ev.clientY - rect.top - draggingRef.current.offsetY, canvasH - nodeH));
+        setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
+      });
     }
 
     function onUp() {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       draggingRef.current = null;
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
@@ -269,12 +280,13 @@ export default function CreatorStudioPage() {
               key={node.id}
               onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
               onClick={(e) => { e.stopPropagation(); handleNodeClick(node.id); }}
-              className={`absolute z-[2] flex items-center gap-2 px-4 py-3 rounded-xl cursor-grab active:cursor-grabbing transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""} ${connectingFrom ? "cursor-crosshair" : ""}`}
+              className={`absolute isolate flex items-center gap-2 px-4 py-3 rounded-xl cursor-grab active:cursor-grabbing transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""} ${connectingFrom ? "cursor-crosshair" : ""}`}
               style={{
                 left: node.x,
                 top: node.y,
-                background: node.block.color,
-                border: `1px solid ${node.block.color.replace("0.3", "0.6")}`,
+                zIndex: draggingRef.current?.id === node.id ? 999 : 2,
+                backgroundColor: node.block.color.replace("0.3", "0.15"),
+                border: `1px solid ${node.block.color.replace("0.3", "0.4")}`,
               }}
             >
               {(() => { const Icon = node.block.icon; return <Icon className="h-4 w-4" />; })()}
