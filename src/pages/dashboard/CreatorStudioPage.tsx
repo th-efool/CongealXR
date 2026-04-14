@@ -1,6 +1,6 @@
 import { Play, Save, Upload, Undo2, Redo2, Zap, GitBranch, MousePointer, Box, Timer, Target, Volume2, Move, RotateCw, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 type BlockCategory = "events" | "conditions" | "actions";
 
@@ -35,19 +35,141 @@ interface CanvasNode {
   block: Block;
   x: number;
   y: number;
+  props: Record<string, string | number | boolean>;
 }
 
-const demoNodes: CanvasNode[] = [
-  { id: "n1", block: blocks[0], x: 80, y: 60 },
-  { id: "n2", block: blocks[3], x: 300, y: 60 },
-  { id: "n3", block: blocks[6], x: 520, y: 60 },
-  { id: "n4", block: blocks[11], x: 520, y: 160 },
-];
+interface Connection {
+  from: string;
+  to: string;
+}
 
 export default function CreatorStudioPage() {
-  const [selectedNode, setSelectedNode] = useState<string | null>("n1");
+  const [nodes, setNodes] = useState<CanvasNode[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [expandedCat, setExpandedCat] = useState<BlockCategory>("events");
-  const selected = demoNodes.find((n) => n.id === selectedNode);
+  const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
+
+  const selected = nodes.find((n) => n.id === selectedNode) ?? null;
+
+  // -- Drag block from palette to canvas --
+  const handleCanvasDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleCanvasDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const blockId = e.dataTransfer.getData("block-id");
+    if (!blockId) return;
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const newNode: CanvasNode = {
+      id: "n" + Date.now(),
+      block,
+      x: e.clientX - rect.left - 60,
+      y: e.clientY - rect.top - 20,
+      props: getDefaultProps(block.category),
+    };
+    setNodes(prev => [...prev, newNode]);
+    setSelectedNode(newNode.id);
+  };
+
+  // -- Node dragging on canvas --
+  const handleNodeMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    const offsetX = e.clientX - rect.left - node.x;
+    const offsetY = e.clientY - rect.top - node.y;
+    draggingRef.current = { id: nodeId, offsetX, offsetY };
+    document.body.style.cursor = "grabbing";
+    document.body.style.userSelect = "none";
+    const dragId = nodeId;
+
+    function onMove(ev: MouseEvent) {
+      if (!draggingRef.current || !rect) return;
+      const newX = Math.max(0, ev.clientX - rect.left - draggingRef.current.offsetX);
+      const newY = Math.max(0, ev.clientY - rect.top - draggingRef.current.offsetY);
+      setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
+    }
+
+    function onUp() {
+      draggingRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    }
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [nodes]);
+
+  // -- Node click (select or connect) --
+  const handleNodeClick = (nodeId: string) => {
+    if (connectingFrom) {
+      if (connectingFrom !== nodeId) {
+        const exists = connections.some(c => c.from === connectingFrom && c.to === nodeId);
+        if (!exists) {
+          setConnections(prev => [...prev, { from: connectingFrom, to: nodeId }]);
+        }
+      }
+      setConnectingFrom(null);
+    } else {
+      setSelectedNode(nodeId);
+    }
+  };
+
+  // -- Actions --
+  const deleteSelected = () => {
+    if (!selectedNode) return;
+    setNodes(prev => prev.filter(n => n.id !== selectedNode));
+    setConnections(prev => prev.filter(c => c.from !== selectedNode && c.to !== selectedNode));
+    setSelectedNode(null);
+  };
+
+  const duplicateSelected = () => {
+    if (!selected) return;
+    const newNode: CanvasNode = { ...selected, id: "n" + Date.now(), x: selected.x + 30, y: selected.y + 30, props: { ...selected.props } };
+    setNodes(prev => [...prev, newNode]);
+    setSelectedNode(newNode.id);
+  };
+
+  const startConnecting = () => {
+    if (selectedNode) setConnectingFrom(selectedNode);
+  };
+
+  const playSimulation = () => {
+    const eventNodes = nodes.filter(n => n.block.category === "events");
+    const conditionNodes = nodes.filter(n => n.block.category === "conditions");
+    const actionNodes = nodes.filter(n => n.block.category === "actions");
+    console.log("▶ Simulating flow...");
+    console.log("  Events:", eventNodes.map(n => n.block.label));
+    console.log("  Conditions:", conditionNodes.map(n => n.block.label));
+    console.log("  Actions:", actionNodes.map(n => n.block.label));
+    console.log("  Connections:", connections);
+  };
+
+  const saveGraph = () => {
+    console.log("💾 Saved:", { nodes, connections });
+  };
+
+  const publishGraph = () => {
+    console.log("📤 Published:", { nodes, connections });
+  };
+
+  const updateNodeProp = (key: string, value: string | number | boolean) => {
+    if (!selectedNode) return;
+    setNodes(prev => prev.map(n => n.id === selectedNode ? { ...n, props: { ...n.props, [key]: value } } : n));
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] -m-6">
@@ -56,13 +178,17 @@ export default function CreatorStudioPage() {
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Undo2 className="h-3.5 w-3.5" /> Undo</Button>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Redo2 className="h-3.5 w-3.5" /> Redo</Button>
         <div className="h-5 w-px bg-border/50 mx-1" />
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Copy className="h-3.5 w-3.5" /> Duplicate</Button>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-destructive"><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={duplicateSelected} disabled={!selectedNode}><Copy className="h-3.5 w-3.5" /> Duplicate</Button>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-destructive" onClick={deleteSelected} disabled={!selectedNode}><Trash2 className="h-3.5 w-3.5" /> Delete</Button>
+        <div className="h-5 w-px bg-border/50 mx-1" />
+        <Button variant="ghost" size="sm" className={`gap-1.5 text-xs ${connectingFrom ? "ring-2 ring-primary" : ""}`} onClick={startConnecting} disabled={!selectedNode}>
+          <GitBranch className="h-3.5 w-3.5" /> {connectingFrom ? "Click target…" : "Connect"}
+        </Button>
         <div className="flex-1" />
-        <span className="text-[10px] text-muted-foreground mr-2">4 nodes · 3 connections</span>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Play className="h-3.5 w-3.5" /> Play</Button>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Save className="h-3.5 w-3.5" /> Save</Button>
-        <Button size="sm" className="gap-1.5 text-xs bg-primary hover:bg-primary/90"><Upload className="h-3.5 w-3.5" /> Publish</Button>
+        <span className="text-[10px] text-muted-foreground mr-2">{nodes.length} nodes · {connections.length} connections</span>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={playSimulation}><Play className="h-3.5 w-3.5" /> Play</Button>
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={saveGraph}><Save className="h-3.5 w-3.5" /> Save</Button>
+        <Button size="sm" className="gap-1.5 text-xs bg-primary hover:bg-primary/90" onClick={publishGraph}><Upload className="h-3.5 w-3.5" /> Publish</Button>
       </div>
 
       <div className="flex flex-1 min-h-0">
@@ -84,6 +210,7 @@ export default function CreatorStudioPage() {
                       <div
                         key={block.id}
                         draggable
+                        onDragStart={(e) => e.dataTransfer.setData("block-id", block.id)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-grab active:cursor-grabbing hover-lift transition-all text-xs"
                         style={{ background: block.color, border: `1px solid ${block.color.replace("0.3", "0.5")}` }}
                       >
@@ -99,26 +226,50 @@ export default function CreatorStudioPage() {
         </div>
 
         {/* Center: Canvas */}
-        <div className="flex-1 relative canvas-grid overflow-hidden">
+        <div
+          ref={canvasRef}
+          className="flex-1 relative canvas-grid overflow-hidden"
+          onDragOver={handleCanvasDragOver}
+          onDrop={handleCanvasDrop}
+          onClick={() => { setSelectedNode(null); setConnectingFrom(null); }}
+        >
           {/* Helper text */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-            <div className="text-center space-y-2 opacity-20">
-              <p className="text-sm">Drag blocks here</p>
-              <p className="text-[10px]">Connect event → condition → action</p>
+          {nodes.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <div className="text-center space-y-2 opacity-20">
+                <p className="text-sm">Drag blocks here</p>
+                <p className="text-[10px]">Connect event → condition → action</p>
+              </div>
             </div>
-          </div>
+          )}
           {/* SVG connection lines */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]">
-            <line x1={230} y1={80} x2={300} y2={80} stroke="rgba(139,92,246,0.5)" strokeWidth={2} strokeDasharray="6 4" className="animate-dash" />
-            <line x1={450} y1={80} x2={520} y2={80} stroke="rgba(59,130,246,0.5)" strokeWidth={2} strokeDasharray="6 4" className="animate-dash" />
-            <line x1={570} y1={100} x2={570} y2={160} stroke="rgba(59,130,246,0.3)" strokeWidth={2} strokeDasharray="6 4" className="animate-dash" />
+            {connections.map((conn, i) => {
+              const fromNode = nodes.find(n => n.id === conn.from);
+              const toNode = nodes.find(n => n.id === conn.to);
+              if (!fromNode || !toNode) return null;
+              return (
+                <line
+                  key={i}
+                  x1={fromNode.x + 75}
+                  y1={fromNode.y + 20}
+                  x2={toNode.x}
+                  y2={toNode.y + 20}
+                  stroke="rgba(139,92,246,0.5)"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  className="animate-dash"
+                />
+              );
+            })}
           </svg>
           {/* Nodes */}
-          {demoNodes.map((node) => (
+          {nodes.map((node) => (
             <div
               key={node.id}
-              onClick={() => setSelectedNode(node.id)}
-              className={`absolute z-[2] flex items-center gap-2 px-4 py-3 rounded-xl cursor-pointer transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""}`}
+              onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+              onClick={(e) => { e.stopPropagation(); handleNodeClick(node.id); }}
+              className={`absolute z-[2] flex items-center gap-2 px-4 py-3 rounded-xl cursor-grab active:cursor-grabbing transition-all text-xs font-medium hover-lift ${selectedNode === node.id ? "ring-2 ring-primary animate-pulse-glow" : ""} ${connectingFrom ? "cursor-crosshair" : ""}`}
               style={{
                 left: node.x,
                 top: node.y,
@@ -126,7 +277,7 @@ export default function CreatorStudioPage() {
                 border: `1px solid ${node.block.color.replace("0.3", "0.6")}`,
               }}
             >
-              <node.block.icon className="h-4 w-4" />
+              {(() => { const Icon = node.block.icon; return <Icon className="h-4 w-4" />; })()}
               {node.block.label}
             </div>
           ))}
@@ -139,31 +290,30 @@ export default function CreatorStudioPage() {
             {selected ? (
               <div className="space-y-4 animate-fade-in">
                 <div className="flex items-center gap-2 p-3 rounded-lg" style={{ background: selected.block.color }}>
-                  <selected.block.icon className="h-4 w-4" />
+                  {(() => { const Icon = selected.block.icon; return <Icon className="h-4 w-4" />; })()}
                   <span className="text-sm font-medium">{selected.block.label}</span>
                 </div>
 
-                {/* Dynamic fields based on block type */}
                 {selected.block.category === "events" && (
                   <>
-                    <PropertyField label="Trigger" type="dropdown" options={["Single Tap", "Double Tap", "Long Press"]} />
-                    <PropertyField label="Delay (ms)" type="slider" value={0} max={5000} />
-                    <PropertyField label="Repeat" type="toggle" />
+                    <PropertyField label="Trigger" type="dropdown" options={["Single Tap", "Double Tap", "Long Press"]} value={selected.props.trigger as string} onChange={(v) => updateNodeProp("trigger", v)} />
+                    <PropertyField label="Delay (ms)" type="slider" value={selected.props.delay as number} max={5000} onChange={(v) => updateNodeProp("delay", v)} />
+                    <PropertyField label="Repeat" type="toggle" value={selected.props.repeat as boolean} onChange={(v) => updateNodeProp("repeat", v)} />
                   </>
                 )}
                 {selected.block.category === "conditions" && (
                   <>
-                    <PropertyField label="Distance" type="slider" value={50} max={500} unit="px" />
-                    <PropertyField label="Object Type" type="dropdown" options={["Any", "Player", "Enemy", "Collectible"]} />
-                    <PropertyField label="Invert" type="toggle" />
+                    <PropertyField label="Distance" type="slider" value={selected.props.distance as number} max={500} unit="px" onChange={(v) => updateNodeProp("distance", v)} />
+                    <PropertyField label="Object Type" type="dropdown" options={["Any", "Player", "Enemy", "Collectible"]} value={selected.props.objectType as string} onChange={(v) => updateNodeProp("objectType", v)} />
+                    <PropertyField label="Invert" type="toggle" value={selected.props.invert as boolean} onChange={(v) => updateNodeProp("invert", v)} />
                   </>
                 )}
                 {selected.block.category === "actions" && (
                   <>
-                    <PropertyField label="Target" type="dropdown" options={["Self", "Player", "Nearest Enemy"]} />
-                    <PropertyField label="Speed" type="slider" value={100} max={1000} unit="px/s" />
-                    <PropertyField label="Duration (s)" type="slider" value={1} max={10} />
-                    <PropertyField label="Easing" type="dropdown" options={["Linear", "Ease In", "Ease Out", "Bounce"]} />
+                    <PropertyField label="Target" type="dropdown" options={["Self", "Player", "Nearest Enemy"]} value={selected.props.target as string} onChange={(v) => updateNodeProp("target", v)} />
+                    <PropertyField label="Speed" type="slider" value={selected.props.speed as number} max={1000} unit="px/s" onChange={(v) => updateNodeProp("speed", v)} />
+                    <PropertyField label="Duration (s)" type="slider" value={selected.props.duration as number} max={10} onChange={(v) => updateNodeProp("duration", v)} />
+                    <PropertyField label="Easing" type="dropdown" options={["Linear", "Ease In", "Ease Out", "Bounce"]} value={selected.props.easing as string} onChange={(v) => updateNodeProp("easing", v)} />
                   </>
                 )}
               </div>
@@ -177,9 +327,26 @@ export default function CreatorStudioPage() {
   );
 }
 
-function PropertyField({ label, type, options, value, max, unit, }: { label: string; type: "slider" | "dropdown" | "toggle"; options?: string[]; value?: number; max?: number; unit?: string; }) {
-  const [toggleOn, setToggleOn] = useState(false);
-  const [sliderVal, setSliderVal] = useState(value ?? 50);
+function getDefaultProps(category: BlockCategory): Record<string, string | number | boolean> {
+  switch (category) {
+    case "events": return { trigger: "Single Tap", delay: 0, repeat: false };
+    case "conditions": return { distance: 50, objectType: "Any", invert: false };
+    case "actions": return { target: "Self", speed: 100, duration: 1, easing: "Linear" };
+  }
+}
+
+function PropertyField({ label, type, options, value, max, unit, onChange }: {
+  label: string;
+  type: "slider" | "dropdown" | "toggle";
+  options?: string[];
+  value?: string | number | boolean;
+  max?: number;
+  unit?: string;
+  onChange: (value: string | number | boolean) => void;
+}) {
+  const sliderVal = typeof value === "number" ? value : 50;
+  const toggleVal = typeof value === "boolean" ? value : false;
+  const dropdownVal = typeof value === "string" ? value : options?.[0] ?? "";
 
   return (
     <div className="space-y-1.5">
@@ -191,23 +358,27 @@ function PropertyField({ label, type, options, value, max, unit, }: { label: str
             min={0}
             max={max ?? 100}
             value={sliderVal}
-            onChange={(e) => setSliderVal(Number(e.target.value))}
+            onChange={(e) => onChange(Number(e.target.value))}
             className="flex-1 h-1.5 bg-secondary/50 rounded-full appearance-none cursor-pointer accent-primary"
           />
           <span className="text-[10px] text-muted-foreground w-14 text-right">{sliderVal}{unit}</span>
         </div>
       )}
       {type === "dropdown" && (
-        <select className="w-full bg-secondary/30 border border-border/50 rounded-lg px-3 py-2 text-xs text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary">
+        <select
+          value={dropdownVal}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-secondary/30 border border-border/50 rounded-lg px-3 py-2 text-xs text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary"
+        >
           {options?.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       )}
       {type === "toggle" && (
         <button
-          onClick={() => setToggleOn(!toggleOn)}
-          className={`relative w-10 h-5 rounded-full transition-colors ${toggleOn ? "bg-primary" : "bg-secondary/50"}`}
+          onClick={() => onChange(!toggleVal)}
+          className={`relative w-10 h-5 rounded-full transition-colors ${toggleVal ? "bg-primary" : "bg-secondary/50"}`}
         >
-          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${toggleOn ? "translate-x-5" : "translate-x-0.5"}`} />
+          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${toggleVal ? "translate-x-5" : "translate-x-0.5"}`} />
         </button>
       )}
     </div>

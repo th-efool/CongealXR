@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Save, Upload, Plus, Image as ImageIcon, Sparkles, Check, AlertCircle, Trash2, ExternalLink, Download, X, Box, Tag, HelpCircle, ChevronRight, Pencil, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Switch } from "@/components/ui/switch";
 
 interface ObjectLabel {
@@ -80,34 +80,41 @@ export default function AnchorModePage() {
   const [published, setPublished] = useState(false);
 
   // Panel resize + toggle state
-  const [leftWidth, setLeftWidth] = useState(280);
-  const [rightWidth, setRightWidth] = useState(320);
+  const leftRef = useRef<HTMLDivElement>(null);
   const [leftOpen, setLeftOpen] = useState(true);
+  const [rightWidth, setRightWidth] = useState(320);
   const [rightOpen, setRightOpen] = useState(true);
 
-  function startLeftResize() {
-    function onMove(e: MouseEvent) {
-      const newWidth = e.clientX;
-      if (newWidth < 120) { setLeftOpen(false); return; }
-      setLeftWidth(Math.min(Math.max(newWidth, 120), 500));
+  const startLeftResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    function onMove(ev: MouseEvent) {
+      if (!leftRef.current) return;
+      let newWidth = ev.clientX;
+      if (newWidth < 180) newWidth = 180;
+      if (newWidth > 420) newWidth = 420;
+      leftRef.current.style.width = newWidth + "px";
     }
+
     function onUp() {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     }
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
+
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
-  }
+  }, []);
 
   function startRightResize() {
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
     function onMove(e: MouseEvent) {
       const newWidth = window.innerWidth - e.clientX;
-      if (newWidth < 200) { setRightOpen(false); return; }
-      setRightWidth(Math.min(newWidth, 500));
+      setRightWidth(Math.min(Math.max(newWidth, 200), 500));
     }
     function onUp() {
       window.removeEventListener("mousemove", onMove);
@@ -115,14 +122,11 @@ export default function AnchorModePage() {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     }
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
   }
 
   function toggleLeft() {
-    if (!leftOpen) setLeftWidth(280);
     setLeftOpen(prev => !prev);
   }
 
@@ -135,9 +139,9 @@ export default function AnchorModePage() {
     setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, ...updates } : obj));
   }
 
-  function addObject() {
+  function addObject(name?: string) {
     const newObj: ARObject = {
-      id: Date.now(), name: "New Object", thumbnail: "📦",
+      id: Date.now(), name: name || "New Object", thumbnail: "📦",
       modelStatus: "missing", labels: [], quizEnabled: false, questions: [],
     };
     setObjects(prev => [...prev, newObj]);
@@ -200,13 +204,12 @@ export default function AnchorModePage() {
 
       <div className="flex flex-1 min-h-0">
         {/* Left: Object List */}
-        <div className="shrink-0 overflow-hidden transition-[width] duration-200" style={{ width: leftOpen ? leftWidth : 0 }}>
+        <div ref={leftRef} className="shrink-0 overflow-hidden" style={{ width: leftOpen ? 280 : 0, transition: leftOpen ? 'none' : 'width 0.2s' }}>
           <ObjectListPanel
             objects={objects}
             selectedId={selectedId}
             onSelect={setSelectedId}
             onAdd={addObject}
-            width={leftWidth}
           />
         </div>
 
@@ -221,19 +224,13 @@ export default function AnchorModePage() {
         {/* Center: Preview Workspace */}
         <div className="flex-1 flex flex-col items-center justify-center min-w-0">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Preview</p>
-          <div className="w-full h-[60%] flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
             <div className="glass-card rounded-xl w-[80%] h-[80%] flex items-center justify-center text-5xl transition-all">
               {selected ? (
                 <span className="animate-fade-in">{selected.thumbnail}</span>
               ) : (
                 <span className="text-muted-foreground text-lg">No object selected</span>
               )}
-            </div>
-          </div>
-          <div className="w-full h-[40%] flex items-center justify-center">
-            <div className="drag-placeholder rounded-xl p-6 text-center w-[70%] cursor-pointer hover:border-primary/50 transition-colors">
-              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Drop image here to create object</p>
             </div>
           </div>
         </div>
@@ -264,18 +261,47 @@ export default function AnchorModePage() {
 }
 
 /* ─── Object List Panel ─── */
-function ObjectListPanel({ objects, selectedId, onSelect, onAdd, width }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void; width: number }) {
-  const cols = width >= 220 ? "grid-cols-2" : "grid-cols-1";
+function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: (name?: string) => void }) {
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        onAdd(file.name.replace(/\.[^/.]+$/, ""));
+      }
+    } else {
+      onAdd();
+    }
+  };
+
   return (
     <div className="w-full h-full shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
-          <Plus className="h-3.5 w-3.5" />{width >= 200 && " Add"}
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => onAdd()}>
+          <Plus className="h-3.5 w-3.5" /> Add
         </Button>
       </div>
 
-      <div className={`grid ${cols} gap-3`}>
+      {/* Drop zone */}
+      <div className="p-3 border-b border-border/50 mb-3">
+        <div
+          className="drag-placeholder rounded-lg p-4 text-center transition-colors hover:border-primary/50"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <Upload className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">Drop image to create object</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
         {objects.map((obj) => {
           const status = getObjectStatus(obj);
           const cfg = statusConfig[status];
