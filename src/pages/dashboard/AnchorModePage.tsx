@@ -75,15 +75,29 @@ const statusConfig = {
 
 export default function AnchorModePage() {
   const [objects, setObjects] = useState<ARObject[]>(sampleObjects);
-  function updateObject(id: number, updates: Partial<ARObject>) {
-  setObjects(prev =>
-    prev.map(obj =>
-      obj.id === id ? { ...obj, ...updates } : obj
-    )
-  );
-}
   const [selectedId, setSelectedId] = useState<number>(sampleObjects[0].id);
   const [published, setPublished] = useState(false);
+
+  function updateObject(id: number, updates: Partial<ARObject>) {
+    setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, ...updates } : obj));
+  }
+
+  function addObject() {
+    const newObj: ARObject = {
+      id: Date.now(), name: "New Object", thumbnail: "📦",
+      modelStatus: "missing", labels: [], quizEnabled: false, questions: [],
+    };
+    setObjects(prev => [...prev, newObj]);
+    setSelectedId(newObj.id);
+  }
+
+  function removeObject(id: number) {
+    setObjects(prev => {
+      const next = prev.filter(o => o.id !== id);
+      if (selectedId === id && next.length > 0) setSelectedId(next[0].id);
+      return next;
+    });
+  }
 
   const selected = objects.find((o) => o.id === selectedId) ?? null;
   const configured = objects.filter((o) => getObjectStatus(o) === "complete").length;
