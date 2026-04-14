@@ -6,8 +6,8 @@ import { useState } from "react";
 export default function PreviewPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"game" | "ar">("game");
-  const [score, setScore] = useState(240);
-  const [time, setTime] = useState(42);
+  const [score] = useState(240);
+  const [time] = useState(42);
   const [quizVisible, setQuizVisible] = useState(false);
 
   return (
