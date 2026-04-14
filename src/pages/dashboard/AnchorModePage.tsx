@@ -263,17 +263,18 @@ export default function AnchorModePage() {
 }
 
 /* ─── Object List Panel ─── */
-function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
+function ObjectListPanel({ objects, selectedId, onSelect, onAdd, width }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void; width: number }) {
+  const cols = width >= 220 ? "grid-cols-2" : "grid-cols-1";
   return (
     <div className="w-full h-full shrink-0 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
-          <Plus className="h-3.5 w-3.5" /> Add Object
+          <Plus className="h-3.5 w-3.5" />{width >= 200 && " Add"}
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className={`grid ${cols} gap-3`}>
         {objects.map((obj) => {
           const status = getObjectStatus(obj);
           const cfg = statusConfig[status];
