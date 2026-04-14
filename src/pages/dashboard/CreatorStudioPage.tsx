@@ -94,11 +94,21 @@ export default function CreatorStudioPage() {
     document.body.style.userSelect = "none";
     const dragId = nodeId;
 
+    let rafId: number | null = null;
     function onMove(ev: MouseEvent) {
       if (!draggingRef.current || !rect) return;
-      const newX = Math.max(0, ev.clientX - rect.left - draggingRef.current.offsetX);
-      const newY = Math.max(0, ev.clientY - rect.top - draggingRef.current.offsetY);
-      setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!draggingRef.current || !rect) return;
+        const canvasW = rect.width;
+        const canvasH = rect.height;
+        const nodeW = 150;
+        const nodeH = 44;
+        const newX = Math.max(0, Math.min(ev.clientX - rect.left - draggingRef.current.offsetX, canvasW - nodeW));
+        const newY = Math.max(0, Math.min(ev.clientY - rect.top - draggingRef.current.offsetY, canvasH - nodeH));
+        setNodes(prev => prev.map(n => n.id === dragId ? { ...n, x: newX, y: newY } : n));
+      });
     }
 
     function onUp() {
