@@ -145,10 +145,11 @@ export default function AnchorModePage() {
           objects={objects}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onAdd={addObject}
         />
 
         {/* Right: Object Editor */}
-        <ObjectEditorPanel object={selected} updateObject={updateObject} />
+        <ObjectEditorPanel object={selected} updateObject={updateObject} onRemove={removeObject} />
       </div>
 
       {/* Bottom Bar */}
@@ -163,12 +164,12 @@ export default function AnchorModePage() {
 }
 
 /* ─── Object List Panel ─── */
-function ObjectListPanel({ objects, selectedId, onSelect }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void }) {
+function ObjectListPanel({ objects, selectedId, onSelect, onAdd }: { objects: ARObject[]; selectedId: number; onSelect: (id: number) => void; onAdd: () => void }) {
   return (
     <div className="flex-1 p-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Objects</h3>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={onAdd}>
           <Plus className="h-3.5 w-3.5" /> Add Object
         </Button>
       </div>
@@ -213,9 +214,11 @@ function ObjectListPanel({ objects, selectedId, onSelect }: { objects: ARObject[
 function ObjectEditorPanel({
   object,
   updateObject,
+  onRemove,
 }: {
   object: ARObject | null;
   updateObject: (id: number, updates: Partial<ARObject>) => void;
+  onRemove: (id: number) => void;
 }) {
 
   if (!object) {
@@ -269,7 +272,7 @@ function ObjectEditorPanel({
                 >
                   <Upload className="h-3 w-3" /> Upload 3D
                 </Button>
-                <Button size="sm" className="flex-1 text-[10px] gap-1 bg-primary"><Sparkles className="h-3 w-3" /> Generate AI</Button>
+                <Button size="sm" className="flex-1 text-[10px] gap-1 bg-primary" onClick={() => updateObject(object.id, { modelStatus: "added" })}><Sparkles className="h-3 w-3" /> Generate AI</Button>
               </div>
             </div>
           )}
@@ -289,19 +292,19 @@ function ObjectEditorPanel({
                       x:{label.position.x} y:{label.position.y} z:{label.position.z}
                     </p>
                   </div>
-                  <button className="text-muted-foreground/40 hover:text-destructive transition-colors">
+                  <button className="text-muted-foreground/40 hover:text-destructive transition-colors" onClick={() => updateObject(object.id, { labels: object.labels.filter(l => l.id !== label.id) })}>
                     <Trash2 className="h-3 w-3" />
                   </button>
                 </div>
               ))}
-              <Button variant="ghost" size="sm" className="text-[10px] w-full gap-1"><Plus className="h-3 w-3" /> Add Label</Button>
+              <Button variant="ghost" size="sm" className="text-[10px] w-full gap-1" onClick={() => updateObject(object.id, { labels: [...object.labels, { id: Date.now(), name: "New Label", description: "Edit me", position: { x: 0, y: 0, z: 0 } }] })}><Plus className="h-3 w-3" /> Add Label</Button>
             </div>
           ) : (
             <div className="space-y-2">
               <div className="drag-placeholder rounded-lg p-3 text-center">
                 <p className="text-[10px] text-muted-foreground">No labels added</p>
               </div>
-              <Button variant="ghost" size="sm" className="text-[10px] w-full gap-1"><Plus className="h-3 w-3" /> Add Label</Button>
+              <Button variant="ghost" size="sm" className="text-[10px] w-full gap-1" onClick={() => updateObject(object.id, { labels: [...object.labels, { id: Date.now(), name: "New Label", description: "Edit me", position: { x: 0, y: 0, z: 0 } }] })}><Plus className="h-3 w-3" /> Add Label</Button>
             </div>
           )}
         </EditorSection>
@@ -333,8 +336,8 @@ function ObjectEditorPanel({
                   </div>
                 ))}
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="flex-1 text-[10px]"><Plus className="h-3 w-3 mr-1" /> Add Question</Button>
-                  <Button variant="ghost" size="sm" className="flex-1 text-[10px]"><Sparkles className="h-3 w-3 mr-1" /> AI Generate</Button>
+                  <Button variant="ghost" size="sm" className="flex-1 text-[10px]" onClick={() => updateObject(object.id, { questions: [...object.questions, { id: Date.now(), question: "New question", options: ["Option A", "Option B"], correctIndex: 0 }] })}><Plus className="h-3 w-3 mr-1" /> Add Question</Button>
+                  <Button variant="ghost" size="sm" className="flex-1 text-[10px]" onClick={() => updateObject(object.id, { questions: [...object.questions, { id: Date.now(), question: "AI generated question?", options: ["Answer A", "Answer B", "Answer C"], correctIndex: 0 }] })}><Sparkles className="h-3 w-3 mr-1" /> AI Generate</Button>
                 </div>
               </div>
             ) : (
@@ -343,8 +346,8 @@ function ObjectEditorPanel({
                   <p className="text-[10px] text-muted-foreground">No quiz questions</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 text-[10px]"><Plus className="h-3 w-3 mr-1" /> Manual</Button>
-                  <Button size="sm" className="flex-1 text-[10px] bg-primary"><Sparkles className="h-3 w-3 mr-1" /> AI Generate</Button>
+                  <Button variant="outline" size="sm" className="flex-1 text-[10px]" onClick={() => updateObject(object.id, { questions: [{ id: Date.now(), question: "New question", options: ["Option A", "Option B"], correctIndex: 0 }] })}><Plus className="h-3 w-3 mr-1" /> Manual</Button>
+                  <Button size="sm" className="flex-1 text-[10px] bg-primary" onClick={() => updateObject(object.id, { questions: [{ id: Date.now(), question: "AI generated question?", options: ["Answer A", "Answer B", "Answer C"], correctIndex: 0 }] })}><Sparkles className="h-3 w-3 mr-1" /> AI Generate</Button>
                 </div>
               </div>
             )
@@ -355,7 +358,7 @@ function ObjectEditorPanel({
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-          <Button variant="ghost" size="sm" className="text-[10px] text-destructive gap-1"><Trash2 className="h-3 w-3" /> Remove Object</Button>
+          <Button variant="ghost" size="sm" className="text-[10px] text-destructive gap-1" onClick={() => onRemove(object.id)}><Trash2 className="h-3 w-3" /> Remove Object</Button>
         </div>
       </div>
     </div>
