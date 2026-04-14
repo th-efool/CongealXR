@@ -185,7 +185,7 @@ export default function CreatorStudioPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)] -m-6">
       {/* Top Toolbar */}
-      <div className="h-12 flex items-center gap-2 px-4 border-b border-border/50 glass-panel shrink-0">
+      <div className="h-12 flex items-center gap-2 px-4 border-b border-border/50 bg-[#0d0d14] shrink-0">
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Undo2 className="h-3.5 w-3.5" /> Undo</Button>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs"><Redo2 className="h-3.5 w-3.5" /> Redo</Button>
         <div className="h-5 w-px bg-border/50 mx-1" />
@@ -204,7 +204,7 @@ export default function CreatorStudioPage() {
 
       <div className="flex flex-1 min-h-0">
         {/* Left: Block Palette */}
-        <div className="w-60 border-r border-border/50 shrink-0 overflow-auto glass-panel">
+        <div className="w-60 border-r border-border/50 shrink-0 overflow-auto bg-[#0d0d14]">
           <div className="p-3">
             <h3 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Block Palette</h3>
             {(["events", "conditions", "actions"] as BlockCategory[]).map((cat) => (
@@ -296,7 +296,7 @@ export default function CreatorStudioPage() {
         </div>
 
         {/* Right: Properties Panel */}
-        <div className="w-64 border-l border-border/50 shrink-0 overflow-auto glass-panel">
+        <div className="w-64 border-l border-border/50 shrink-0 overflow-auto bg-[#0d0d14]">
           <div className="p-4 space-y-4">
             <h3 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Properties</h3>
             {selected ? (
