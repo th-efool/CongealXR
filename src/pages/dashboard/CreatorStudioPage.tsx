@@ -62,9 +62,10 @@ export default function CreatorStudioPage() {
 
   const handleCanvasDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const data = e.dataTransfer.getData("block");
-    if (!data) return;
-    const block: Block = JSON.parse(data);
+    const blockId = e.dataTransfer.getData("block-id");
+    if (!blockId) return;
+    const block = blocks.find(b => b.id === blockId);
+    if (!block) return;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const newNode: CanvasNode = {
@@ -205,7 +206,7 @@ export default function CreatorStudioPage() {
                       <div
                         key={block.id}
                         draggable
-                        onDragStart={(e) => e.dataTransfer.setData("block", JSON.stringify(block))}
+                        onDragStart={(e) => e.dataTransfer.setData("block-id", block.id)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg cursor-grab active:cursor-grabbing hover-lift transition-all text-xs"
                         style={{ background: block.color, border: `1px solid ${block.color.replace("0.3", "0.5")}` }}
                       >
