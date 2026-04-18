@@ -50,7 +50,7 @@ export default function ExploreSection() {
         <Reveal className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-1">Ecosystem Depth</h2>
-            <p className="text-xs text-white/50">Complex mechanics built purely with CongealXR nodes.</p>
+            <p className="text-xs text-white/50">Complex mechanics built purely with AriES nodes.</p>
           </div>
           <Link to="/app/explore" className="text-xs font-medium text-white/50 hover:text-white transition-colors flex items-center gap-1 group pb-1">
             Browse Market <Icon icon="solar:arrow-right-linear" className="group-hover:translate-x-1 transition-transform" />
