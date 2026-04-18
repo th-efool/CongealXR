@@ -49,7 +49,7 @@ export default function Navbar() {
       <div className="w-full max-w-7xl mx-auto flex justify-between items-center px-6 lg:px-12 h-16 relative z-10">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="tracking-tighter text-lg font-medium text-white uppercase leading-none">AURA</span>
+            <span className="tracking-tighter text-lg font-medium text-white uppercase leading-none">CONGEALXR</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-xs tracking-wide text-white/50">
             <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className={clsx("nav-link hover:text-white transition-colors", activeSection === 'features' && 'active')}>Features</a>

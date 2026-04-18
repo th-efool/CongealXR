@@ -8,7 +8,7 @@ export default function Footer() {
       <Reveal className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <div className="md:col-span-2">
           <Link to="/" className="flex items-center gap-2 mb-3">
-            <span className="tracking-tighter text-lg font-medium text-white uppercase leading-none">AURA</span>
+            <span className="tracking-tighter text-lg font-medium text-white uppercase leading-none">CONGEALXR</span>
           </Link>
           <p className="text-xs font-light text-white/40 max-w-xs leading-snug scale-95 origin-left">
             Democratizing augmented reality creation. Build, play, and share spatial experiences instantly without the friction of app stores.
@@ -28,7 +28,7 @@ export default function Footer() {
         </div>
       </Reveal>
       <Reveal className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light text-white/30 border-t border-white/10 pt-6 scale-95 origin-left md:origin-center">
-        <span>© {new Date().getFullYear()} Aura Platform Inc. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} CongealXR Platform Inc. All rights reserved.</span>
         <div className="flex gap-4">
           <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Icon icon="mdi:twitter" className="text-sm" /></a>
           <a href="https://discord.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Icon icon="mdi:discord" className="text-sm" /></a>
