@@ -22,12 +22,12 @@ export default function HeroSection() {
         <Reveal delay={0.1}>
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium leading-[1.05] tracking-tight text-white mb-3">
             <span className="text-gradient block">Build Your Own</span>
-            <span className="block">AR Games</span>
+            <span className="block">AR Books</span>
           </h1>
         </Reveal>
 
         <Reveal delay={0.2} className="text-sm md:text-base font-light leading-snug text-white/60 max-w-xl">
-          Create and play your own AR games using simple visual blocks. No coding. Publish instantly. Play inside one app.
+          Create and explore your own AR books using simple visual blocks. No coding. Publish instantly. Play inside one app.
         </Reveal>
 
         <Reveal delay={0.25} className="text-xs md:text-sm font-medium tracking-wide text-gradient-accent mt-2 mb-6">

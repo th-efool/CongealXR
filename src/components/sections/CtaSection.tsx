@@ -8,7 +8,7 @@ export default function CtaSection() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-2xl max-h-2xl bg-violet-600/10 blur-[100px] rounded-full pointer-events-none"></div>
       <Reveal className="max-w-xl mx-auto text-center relative z-20">
         <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4 leading-tight">
-          Build your first AR game →<br/>Live in 60 seconds
+          Build your first AR book →<br/>Live in 60 seconds
         </h2>
         <p className="text-xs font-light text-white/50 mb-8 mx-auto">
           No setup. No syntax. Pure creation.
