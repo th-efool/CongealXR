@@ -46,7 +46,7 @@ export function AppSidebar() {
             <span className="text-sm font-bold text-primary">A</span>
           </div>
           {!collapsed && (
-            <span className="text-lg font-bold tracking-tight">AURA</span>
+            <span className="text-lg font-bold tracking-tight">CONGEALXR</span>
           )}
         </div>
       </SidebarHeader>

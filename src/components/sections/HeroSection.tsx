@@ -16,7 +16,7 @@ export default function HeroSection() {
       <div className="max-w-4xl mx-auto text-center flex flex-col items-center relative z-20">
         <Reveal className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-panel border border-white/10 mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
-          <span className="text-xs font-normal text-white/80 tracking-wide">Aura Studio Beta 2.0</span>
+          <span className="text-xs font-normal text-white/80 tracking-wide">CongealXR Studio Beta 2.0</span>
         </Reveal>
 
         <Reveal delay={0.1}>

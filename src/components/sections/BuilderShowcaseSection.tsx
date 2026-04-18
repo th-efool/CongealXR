@@ -11,7 +11,7 @@ export default function BuilderShowcaseSection() {
             <span className="text-gradient-accent">Zero syntax.</span>
           </h2>
           <p className="text-sm text-white/50 leading-snug mb-6 max-w-sm">
-            Visual logic that scales from basic interactions to deeply complex systems. If you can map it in your head, you can wire it in AURA.
+            Visual logic that scales from basic interactions to deeply complex systems. If you can map it in your head, you can wire it in CongealXR.
           </p>
           <ul className="space-y-3 mb-6">
             {['Native Physics & Spatial Constraints', 'Real-time Multiplayer State Sync', 'Advanced Triggers & APIs'].map((item, i) => (
