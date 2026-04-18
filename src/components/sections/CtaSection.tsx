@@ -15,7 +15,7 @@ export default function CtaSection() {
         </p>
         <div className="flex flex-col items-center justify-center">
           <Link to="/app/studio" className="btn-primary rounded-full px-8 py-3 text-sm font-normal text-white inline-flex items-center justify-center w-full sm:w-auto shadow-lg mb-4">
-            Launch CongealXR Studio
+            Launch AriES Studio
           </Link>
           <div className="text-xs text-white/40 tracking-wide font-light">
             Free to start <span className="mx-2">•</span> No install <span className="mx-2">•</span> Publish instantly

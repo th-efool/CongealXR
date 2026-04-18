@@ -1,4 +1,4 @@
-// CongealXR Dashboard App
+// AriES Dashboard App
 import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
